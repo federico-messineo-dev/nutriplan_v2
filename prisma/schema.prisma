@@ -1,0 +1,318 @@
+// ============================================================
+// NutriPlan Pro — Prisma Schema
+// Phase 0: SQLite for dev. Migrate to Postgres (Supabase) later.
+// Enums stored as strings for SQLite compatibility.
+// Arrays stored as JSON strings for SQLite compatibility.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// TENANCY
+// ============================================================
+
+model Trainer {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  fullName     String
+  businessName String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  clients   Client[]
+  exercises Exercise[]
+  recipes   Recipe[]
+
+  @@map("trainers")
+}
+
+// ============================================================
+// CLIENTI
+// ============================================================
+
+model Client {
+  id              String   @id @default(cuid())
+  trainerId       String
+  trainer         Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  fullName        String
+  phoneNumberE164 String   @unique
+  email           String?
+  status          String   @default("ACTIVE") // ACTIVE | PAUSED | CHURNED
+
+  sex             String?  // M | F
+  age             Int?
+  heightCm        Float?
+  startWeightKg   Float?
+  exclusions      String   @default("[]") // JSON array: ["glutine","lattosio"]
+  diet            String   @default("ONNIVORO") // ONNIVORO | PESCETARIANO | VEGETARIANO | VEGANO
+  activityFactor  Float    @default(1.55)
+  goal            String   @default("MAINTAIN") // CUT | MAINTAIN | BULK | RECOMP
+  trainingDaysWk  Int      @default(3)
+  waterTargetL    Float    @default(2)
+  bmrManualKcal   Float?
+  tdeeManualKcal  Float?
+  mealDistribution String? // JSON: {"COLAZIONE":25,"SPUNTINO_MATTINA":10,"PRANZO":35,"SPUNTINO_POMERIGGIO":10,"CENA":20}
+
+  medicalNotes    String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  checkIns          CheckIn[]
+  mealLogs          MealLog[]
+  dietPlans         DietPlan[]
+  workoutPlans      WorkoutPlan[]
+  consents          ConsentRecord[]
+  conversationState ConversationState?
+
+  @@index([trainerId, status])
+  @@map("clients")
+}
+
+model ConsentRecord {
+  id        String      @id @default(cuid())
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type      String      // HEALTH_DATA_PROCESSING | WHATSAPP_AUTOMATION | MARKETING
+  grantedAt DateTime    @default(now())
+  revokedAt DateTime?
+
+  @@map("consent_records")
+}
+
+// ============================================================
+// CHECK-IN
+// ============================================================
+
+model CheckIn {
+  id           String   @id @default(cuid())
+  clientId     String
+  client       Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  weightKg     Float?
+  sleepHours   Float?
+  stressLevel  Int?
+  energyLevel  Int?
+  adherencePct Int?
+  notes        String?
+  photoUrls    String   @default("[]") // JSON array of URLs
+
+  source    String   @default("WHATSAPP") // WHATSAPP | TELEGRAM | WEB | MANUAL
+  createdAt DateTime @default(now())
+
+  @@index([clientId, createdAt])
+  @@map("check_ins")
+}
+
+// ============================================================
+// MEAL LOGGING (vision AI)
+// ============================================================
+
+model MealLog {
+  id                String   @id @default(cuid())
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  imageUrl          String?
+  source            String   @default("PHOTO") // PHOTO | MANUAL | VOICE
+
+  estimatedKcal     Float?
+  estimatedProteinG Float?
+  estimatedCarbG    Float?
+  estimatedFatG     Float?
+  confidence        Float?
+  rawVisionOutput   String?  // JSON string
+  correctedByUser   Boolean  @default(false)
+
+  loggedAt DateTime @default(now())
+
+  @@index([clientId, loggedAt])
+  @@map("meal_logs")
+}
+
+// ============================================================
+// WHATSAPP BOT STATE
+// ============================================================
+
+model ConversationState {
+  clientId    String   @id
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  flow        String?
+  step        String?
+  contextJson String?  // JSON string
+  updatedAt   DateTime @updatedAt
+
+  @@map("conversation_states")
+}
+
+model ProcessedWebhookEvent {
+  wamid       String   @id
+  processedAt DateTime @default(now())
+
+  @@map("processed_webhook_events")
+}
+
+// ============================================================
+// FOOD / RECIPE CATALOG
+// ============================================================
+
+model Recipe {
+  id             String   @id @default(cuid())
+  trainerId      String?
+  trainer        Trainer? @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  name           String
+  category       String   // FoodCategory enum value
+  kcalPer100g    Float
+  proteinPer100g Float
+  carbPer100g    Float
+  fatPer100g     Float
+  dietTags       String   @default("[]") // JSON array: ["ONNIVORO","VEGETARIANO"]
+  allergens      String   @default("[]") // JSON array: ["glutine","lattosio"]
+  instructions   String?
+
+  dietPlanMeals DietPlanMeal[]
+
+  @@index([category])
+  @@map("recipes")
+}
+
+// ============================================================
+// DIET PLANS
+// ============================================================
+
+model DietPlan {
+  id             String   @id @default(cuid())
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  weekStart      DateTime
+  targetKcal     Int
+  targetProteinG Int
+  targetCarbG    Int
+  targetFatG     Int
+
+  status              String   @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  generatedBy         String   @default("AI") // AI | TRAINER | HYBRID
+  approvedByTrainerAt DateTime?
+
+  meals     DietPlanMeal[]
+  createdAt DateTime       @default(now())
+
+  @@index([clientId, weekStart])
+  @@map("diet_plans")
+}
+
+model DietPlanMeal {
+  id          String   @id @default(cuid())
+  dietPlanId  String
+  dietPlan    DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+
+  dayOfWeek   Int
+  slot        String   // COLAZIONE | SPUNTINO_MATTINA | PRANZO | SPUNTINO_POMERIGGIO | CENA
+  recipeId    String?
+  recipe      Recipe?  @relation(fields: [recipeId], references: [id])
+  customLabel String?
+  grams       Float?
+  kcal        Int
+  proteinG    Float
+  carbG       Float
+  fatG        Float
+
+  @@index([dietPlanId, dayOfWeek])
+  @@map("diet_plan_meals")
+}
+
+// ============================================================
+// WORKOUTS
+// ============================================================
+
+model Exercise {
+  id                String   @id @default(cuid())
+  trainerId         String?
+  trainer           Trainer? @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  name              String
+  muscleGroup       String
+  equipment         String?
+  videoUrl          String?
+  substitutionGroup String?
+
+  sessionExercises WorkoutSessionExercise[]
+
+  @@map("exercises")
+}
+
+model WorkoutPlan {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  weekStart           DateTime
+  status              String   @default("DRAFT") // DRAFT | ACTIVE | ARCHIVED
+  generatedBy         String   @default("AI") // AI | TRAINER | HYBRID
+  approvedByTrainerAt DateTime?
+
+  sessions  WorkoutSession[]
+  createdAt DateTime          @default(now())
+
+  @@index([clientId, weekStart])
+  @@map("workout_plans")
+}
+
+model WorkoutSession {
+  id            String      @id @default(cuid())
+  workoutPlanId String
+  workoutPlan   WorkoutPlan @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+
+  dayOfWeek Int
+  name      String
+
+  exercises WorkoutSessionExercise[]
+  logs      SessionLog[]
+
+  @@map("workout_sessions")
+}
+
+model WorkoutSessionExercise {
+  id               String         @id @default(cuid())
+  workoutSessionId String
+  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exerciseId       String
+  exercise         Exercise       @relation(fields: [exerciseId], references: [id])
+
+  targetSets    Int
+  targetRepsMin Int
+  targetRepsMax Int
+  targetRpe     Float?
+  orderIndex    Int    @default(0)
+
+  @@index([workoutSessionId])
+  @@map("workout_session_exercises")
+}
+
+model SessionLog {
+  id               String         @id @default(cuid())
+  workoutSessionId String
+  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exerciseId       String
+
+  setNumber Int
+  reps      Int
+  weightKg  Float
+  rpe       Float?
+  painFlag  Boolean @default(false)
+
+  loggedAt DateTime @default(now())
+
+  @@index([workoutSessionId, exerciseId])
+  @@map("session_logs")
+}

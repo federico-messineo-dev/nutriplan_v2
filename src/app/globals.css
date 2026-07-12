@@ -1,0 +1,188 @@
+@import "tailwindcss";
+
+/* ============================================================
+   NUTRIPRO — Futuristic Dashboard Theme
+   Palette: dark navy/charcoal, cyan accent, slate neutrals
+   Fonts: Geist Sans (body), Geist Mono (meta), Fraunces (display)
+   ============================================================ */
+
+@theme inline {
+  /* --- Colors: futuristic palette --- */
+  --color-ink: #f0f4f8;
+  --color-paper: #0a1128;
+  --color-paper-2: #111827;
+  --color-paper-3: #334155;
+  --color-accent: #06b6d4;
+  --color-accent-light: #22d3ee;
+  --color-olive: #22c55e;
+  --color-olive-light: #4ade80;
+  --color-gold: #a855f7;
+  --color-gold-light: #c084fc;
+  --color-danger: #ef4444;
+  --color-danger-light: #f87171;
+  --color-success: #22c55e;
+  --color-success-light: #4ade80;
+
+  /* --- Fonts --- */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ============================================================
+   BASE STYLES — no var() refs into @theme inline (they don't resolve)
+   ============================================================ */
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: linear-gradient(135deg, #000000 0%, #0a1128 50%, #111827 100%);
+  background-attachment: fixed;
+  color: #f0f4f8;
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Metadata/labels */
+.font-meta {
+  font-family: var(--font-mono), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   RADIUS TOKENS — Apple Liquid Glass
+   ============================================================ */
+
+:root {
+  --radius-sm: 16px;
+  --radius-md: 24px;
+  --radius-lg: 32px;
+  --radius-full: 999px;
+}
+
+/* ============================================================
+   GLASS SURFACE UTILITY
+   ============================================================ */
+
+.glass {
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================================
+   SHIMMER SKELETON
+   ============================================================ */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.3) 25%,
+    rgba(51, 65, 85, 0.5) 50%,
+    rgba(51, 65, 85, 0.3) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR (dark, subtle)
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.5);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.5);
+}
+
+/* ============================================================
+   SELECT / OPTION — dark glass styling
+   ============================================================ */
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+select option {
+  background: #111827;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* ============================================================
+   MOBILE — safe area + bottom nav padding
+   ============================================================ */
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 767px) {
+  .mobile-bottom-pad {
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* Improve touch targets on mobile */
+@media (hover: none) and (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* Reduce motion for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

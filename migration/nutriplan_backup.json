@@ -1,0 +1,610 @@
+{
+  "clients": [
+    {
+      "id": "c1a2b3c4d5e",
+      "name": "Marco Bianchi",
+      "createdAt": "2025-09-15T10:30:00.000Z",
+      "profile": {
+        "sex": "M",
+        "age": 34,
+        "height": 182,
+        "startWeight": 96.5,
+        "activity": 1.725,
+        "activityCustom": false,
+        "goal": "cut",
+        "kcalAdjust": null,
+        "bmrManual": null,
+        "tdeeManual": null,
+        "diet": "onnivoro",
+        "exclusions": ["lattosio"],
+        "waterL": 2.5,
+        "trainingDays": 4
+      },
+      "calc": {
+        "bmr": 1967,
+        "tdee": 3393,
+        "target": 2993,
+        "goalLabel": "Deficit calorico (-400 kcal)",
+        "pG": 212,
+        "cG": 330,
+        "fG": 80,
+        "bmrFromFormula": true,
+        "tdeeFromFormula": true,
+        "adjustUsed": -400,
+        "activityUsed": 1.725
+      },
+      "targets": {
+        "kcal": 2900,
+        "p": 200,
+        "c": 340,
+        "f": 75
+      },
+      "plan": {
+        "meals": [
+          {
+            "name": "Colazione",
+            "kcalHint": "~640 kcal",
+            "variants": [
+              "Liquido senza kcal a piacere (caffè/tè/tisana)\nPancake proteico: 150 g albume + 30 g farina d'avena\n20-30 g crema proteica (tipo Foodspring) o crema di frutta secca",
+              "Liquido senza kcal a piacere\nPorridge: 30 g fiocchi d'avena + 20 g whey isolata\nBevanda vegetale q.b.\n20-30 g crema proteica o di frutta secca"
+            ]
+          },
+          {
+            "name": "Spuntino Mattina",
+            "kcalHint": "~250 kcal",
+            "variants": [
+              "1 yogurt greco 0% (150 g) + 30 g granola integrale\n1 frutto",
+              "Shaker: 30 g whey isolata + 1 banana\n10 g frutta secca"
+            ]
+          },
+          {
+            "name": "Pranzo",
+            "kcalHint": "~870 kcal",
+            "variants": [
+              "50 g (crudo) riso basmati / integrale\n200 g petto di pollo\nVerdura a piacere + 10 g olio EVO",
+              "80 g (crudo) pasta integrale\n150 g petto di pollo\nVerdura mista + 10 g olio EVO"
+            ]
+          },
+          {
+            "name": "Spuntino Pomeriggio",
+            "kcalHint": "~300 kcal",
+            "variants": [
+              "30 g proteine whey + 30 g fiocchi d'avena\n1 frutto + 20 g burro di arachidi",
+              "1 barretta proteica (60 kcal)\n30 g mandorle\n1 frutto"
+            ]
+          },
+          {
+            "name": "Cena",
+            "kcalHint": "~840 kcal",
+            "variants": [
+              "200 g salmone alla piastra\n200 g patate lesse\nInsalata mista + 10 g olio EVO",
+              "180 g orata al forno\n200 g riso venere\nVerdure grigliate + 8 g olio EVO"
+            ]
+          }
+        ],
+        "rules": "Bevi almeno 2L di acqua al giorno. Evita alcolici. Integratore vitamina D3 2000UI/die.",
+        "selectedVariants": { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0 }
+      },
+      "measurements": [
+        {
+          "id": "m1a2b3c4d1",
+          "date": "2025-09-15",
+          "weight": 96.5,
+          "waist": 98,
+          "hips": 102,
+          "chest": 104,
+          "arm": 36,
+          "thigh": 62,
+          "calf": 40,
+          "notes": "Peso iniziale"
+        },
+        {
+          "id": "m1a2b3c4d2",
+          "date": "2025-10-15",
+          "weight": 94.2,
+          "waist": 96,
+          "hips": 101,
+          "chest": 103,
+          "arm": 35.5,
+          "thigh": 61,
+          "calf": 39.5,
+          "notes": ""
+        },
+        {
+          "id": "m1a2b3c4d3",
+          "date": "2025-11-15",
+          "weight": 92.8,
+          "waist": 94,
+          "hips": 100,
+          "chest": 103,
+          "arm": 35,
+          "thigh": 60,
+          "calf": 39,
+          "notes": "Buon trend, costante"
+        },
+        {
+          "id": "m1a2b3c4d4",
+          "date": "2025-12-15",
+          "weight": 91.1,
+          "waist": 92,
+          "hips": 99,
+          "chest": 102,
+          "arm": 35,
+          "thigh": 59,
+          "calf": 39,
+          "notes": ""
+        },
+        {
+          "id": "m1a2b3c4d5",
+          "date": "2026-01-15",
+          "weight": 89.4,
+          "waist": 90,
+          "hips": 98,
+          "chest": 102,
+          "arm": 34.5,
+          "thigh": 58.5,
+          "calf": 38.5,
+          "notes": "Ottimo lavoro, 7 kg persi in 4 mesi"
+        },
+        {
+          "id": "m1a2b3c4d6",
+          "date": "2026-02-15",
+          "weight": 88.2,
+          "waist": 89,
+          "hips": 97,
+          "chest": 101,
+          "arm": 34.5,
+          "thigh": 58,
+          "calf": 38.5,
+          "notes": ""
+        },
+        {
+          "id": "m1a2b3c4d7",
+          "date": "2026-03-15",
+          "weight": 87.0,
+          "waist": 88,
+          "hips": 97,
+          "chest": 101,
+          "arm": 34,
+          "thigh": 57.5,
+          "calf": 38,
+          "notes": "Rallentamento leggero, rivalutare macros"
+        },
+        {
+          "id": "m1a2b3c4d8",
+          "date": "2026-04-15",
+          "weight": 86.1,
+          "waist": 87,
+          "hips": 96,
+          "chest": 100,
+          "arm": 34,
+          "thigh": 57,
+          "calf": 38,
+          "notes": ""
+        },
+        {
+          "id": "m1a2b3c4d9",
+          "date": "2026-05-15",
+          "weight": 85.3,
+          "waist": 86,
+          "hips": 96,
+          "chest": 100,
+          "arm": 34,
+          "thigh": 57,
+          "calf": 38,
+          "notes": "Tornato a calare, buona aderenza"
+        },
+        {
+          "id": "m1a2b3c4d10",
+          "date": "2026-06-15",
+          "weight": 84.5,
+          "waist": 85,
+          "hips": 95,
+          "chest": 100,
+          "arm": 33.5,
+          "thigh": 56.5,
+          "calf": 37.5,
+          "notes": ""
+        },
+        {
+          "id": "m1a2b3c4d11",
+          "date": "2026-07-01",
+          "weight": 84.0,
+          "waist": 85,
+          "hips": 95,
+          "chest": 99,
+          "arm": 33.5,
+          "thigh": 56.5,
+          "calf": 37.5,
+          "notes": "Ultima misura before summer"
+        }
+      ],
+      "photos": [],
+      "notes": [
+        {
+          "id": "n1a2b3c4d1",
+          "date": "2025-09-15T10:30:00.000Z",
+          "text": "Cliente motivato, vuole perdere 10-12 kg in 6 mesi. Allergia al lattosio, evitare latticini. Allena in palestra 4x/week (push/pull/legs/upper)."
+        },
+        {
+          "id": "n1a2b3c4d2",
+          "date": "2025-12-20T14:00:00.000Z",
+          "text": "Check-in trimestrale: sta rispettando il piano, ha qualche difficoltà con lo spuntino pomeriggio. Sostituito con shake proteico + frutta."
+        },
+        {
+          "id": "n1a2b3c4d3",
+          "date": "2026-03-10T09:15:00.000Z",
+          "text": "Rallentamento metabolico previsto. ridotto target kcal da 2993 a 2900 e aumentato proteine a 200g. Verificare risposta nelle prossime settimane."
+        }
+      ]
+    },
+    {
+      "id": "c2f3g4h5i6j",
+      "name": "Giulia Verdi",
+      "createdAt": "2025-11-02T14:15:00.000Z",
+      "profile": {
+        "sex": "F",
+        "age": 28,
+        "height": 165,
+        "startWeight": 62.0,
+        "activity": 1.55,
+        "activityCustom": false,
+        "goal": "maintain",
+        "kcalAdjust": null,
+        "bmrManual": null,
+        "tdeeManual": null,
+        "diet": "vegetariano",
+        "exclusions": [],
+        "waterL": 2.0,
+        "trainingDays": 3
+      },
+      "calc": {
+        "bmr": 1389,
+        "tdee": 2153,
+        "target": 2153,
+        "goalLabel": "Mantenimento",
+        "pG": 112,
+        "cG": 257,
+        "fG": 65,
+        "bmrFromFormula": true,
+        "tdeeFromFormula": true,
+        "adjustUsed": 0,
+        "activityUsed": 1.55
+      },
+      "targets": null,
+      "plan": {
+        "meals": [
+          {
+            "name": "Colazione",
+            "kcalHint": "~470 kcal",
+            "variants": [
+              "Liquido senza kcal a piacere\nPorridge: 30 g fiocchi d'avena + 20 g whey isolata\nBevanda vegetale q.b.\n20-30 g crema proteica o di frutta secca\n1 frutto",
+              "Liquido senza kcal a piacere\n30 g fette biscottate integrali (Misura)\n1 yogurt greco 0% (150 g) insaporito con marmellata light o dolcificante"
+            ]
+          },
+          {
+            "name": "Spuntino Mattina",
+            "kcalHint": "~180 kcal",
+            "variants": [
+              "1 frutto + 20 g mandorle",
+              "1 yogurt vegetale proteico (120 g)"
+            ]
+          },
+          {
+            "name": "Pranzo",
+            "kcalHint": "~640 kcal",
+            "variants": [
+              "60 g (crudo) riso basmati\n150 g tofu marinato alla griglia\nVerdure miste + 8 g olio EVO",
+              "70 g pasta di legumi\n150 g lenticchie cotti\nInsalata mista + 8 g olio EVO"
+            ]
+          },
+          {
+            "name": "Spuntino Pomeriggio",
+            "kcalHint": "~200 kcal",
+            "variants": [
+              "Shaker: 25 g proteine vegetali in polvere + bevanda vegetale\n1 frutto",
+              "30 g gallette di riso + 15 g crema di mandorle"
+            ]
+          },
+          {
+            "name": "Cena",
+            "kcalHint": "~660 kcal",
+            "variants": [
+              "150 g seitan saltato con verdure\n50 g (crudo) riso integrale\nVerdura a piacere + 8 g olio EVO",
+              "150 g tempeh alla piastra\n200 g patate lesse\nInsalata mista + 10 g olio EVO"
+            ]
+          }
+        ],
+        "rules": "Integrare vitamina B12 1000 mcg/die. Controllare ferritina ogni 3 mesi. Bevi almeno 2L di acqua.",
+        "selectedVariants": { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0 }
+      },
+      "measurements": [
+        {
+          "id": "m2a2b3c4d1",
+          "date": "2025-11-02",
+          "weight": 62.0,
+          "waist": 68,
+          "hips": 92,
+          "chest": 88,
+          "arm": 26,
+          "thigh": 52,
+          "calf": 35,
+          "notes": "Peso iniziale"
+        },
+        {
+          "id": "m2a2b3c4d2",
+          "date": "2025-12-02",
+          "weight": 61.8,
+          "waist": 67.5,
+          "hips": 91.5,
+          "chest": 88,
+          "arm": 26,
+          "thigh": 51.5,
+          "calf": 35,
+          "notes": ""
+        },
+        {
+          "id": "m2a2b3c4d3",
+          "date": "2026-01-10",
+          "weight": 61.5,
+          "waist": 67,
+          "hips": 91,
+          "chest": 87.5,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": "Stabile, buona composizione"
+        },
+        {
+          "id": "m2a2b3c4d4",
+          "date": "2026-02-10",
+          "weight": 61.3,
+          "waist": 67,
+          "hips": 91,
+          "chest": 87.5,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": ""
+        },
+        {
+          "id": "m2a2b3c4d5",
+          "date": "2026-03-10",
+          "weight": 61.0,
+          "waist": 66.5,
+          "hips": 90.5,
+          "chest": 87,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": ""
+        },
+        {
+          "id": "m2a2b3c4d6",
+          "date": "2026-04-14",
+          "weight": 61.2,
+          "waist": 66.5,
+          "hips": 91,
+          "chest": 87.5,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": "Leggero aumento post-festività, nulla di preoccupante"
+        },
+        {
+          "id": "m2a2b3c4d7",
+          "date": "2026-05-12",
+          "weight": 61.0,
+          "waist": 66,
+          "hips": 90.5,
+          "chest": 87,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": ""
+        },
+        {
+          "id": "m2a2b3c4d8",
+          "date": "2026-06-15",
+          "weight": 60.8,
+          "waist": 66,
+          "hips": 90.5,
+          "chest": 87,
+          "arm": 25.5,
+          "thigh": 51,
+          "calf": 34.5,
+          "notes": "Ottima composizione corporea, tutto stabile"
+        }
+      ],
+      "photos": [],
+      "notes": [
+        {
+          "id": "n2a2b3c4d1",
+          "date": "2025-11-02T14:15:00.000Z",
+          "text": "Giulia è vegetariana da 5 anni. Vuole mantenere il peso e migliorare la composizione corporea. Allena in palestra 3x/week full body."
+        },
+        {
+          "id": "n2a2b3c4d2",
+          "date": "2026-01-10T11:00:00.000Z",
+          "text": "Check-in post-natale: leggero aumento ma tutto sotto controllo. Ferritina ok (45 ng/mL). Continuare con integratore B12."
+        }
+      ]
+    },
+    {
+      "id": "c3k4l5m6n7o",
+      "name": "Luca Russo",
+      "createdAt": "2026-01-20T09:00:00.000Z",
+      "profile": {
+        "sex": "M",
+        "age": 42,
+        "height": 175,
+        "startWeight": 88.0,
+        "activity": 1.375,
+        "activityCustom": false,
+        "goal": "bulk",
+        "kcalAdjust": 300,
+        "bmrManual": 1800,
+        "tdeeManual": null,
+        "diet": "onnivoro",
+        "exclusions": ["soia"],
+        "waterL": 2.5,
+        "trainingDays": 3
+      },
+      "calc": {
+        "bmr": 1800,
+        "tdee": 2475,
+        "target": 2775,
+        "goalLabel": "Surplus calorico (+300 kcal)",
+        "pG": 159,
+        "cG": 341,
+        "fG": 77,
+        "bmrFromFormula": false,
+        "tdeeFromFormula": true,
+        "adjustUsed": 300,
+        "activityUsed": 1.375
+      },
+      "targets": {
+        "kcal": 2800,
+        "p": 160,
+        "c": 345,
+        "f": 75
+      },
+      "plan": {
+        "meals": [
+          {
+            "name": "Colazione",
+            "kcalHint": "~620 kcal",
+            "variants": [
+              "Liquido senza kcal a piacere\nPancake proteico: 150 g albume + 30 g farina d'avena\n30 g crema di frutta secca\n1 banana",
+              "Liquido senza kcal a piacere\nPorridge: 40 g fiocchi d'avena + 20 g whey isolata\nBevanda vegetale q.b.\n30 g miele o marmellata"
+            ]
+          },
+          {
+            "name": "Spuntino Mattina",
+            "kcalHint": "~350 kcal",
+            "variants": [
+              "Shaker: 30 g whey + 40 g fiocchi d'avena + 1 banana + 20 g burro di arachidi",
+              "1 barretta proteica\n30 g mandorle\n1 frutto"
+            ]
+          },
+          {
+            "name": "Pranzo",
+            "kcalHint": "~820 kcal",
+            "variants": [
+              "80 g (crudo) pasta integrale\n200 g petto di pollo\nVerdura a piacere + 10 g olio EVO",
+              "100 g (crudo) riso basmati\n200 g manzo magro macinato\nVerdure miste + 10 g olio EVO"
+            ]
+          },
+          {
+            "name": "Spuntino Pomeriggio",
+            "kcalHint": "~320 kcal",
+            "variants": [
+              "Shaker: 30 g whey + 200 ml latte intero\n4-5 biscotti Oro Saiwa fibra attiva (~30 g)\n1 frutto",
+              "1 yogurt greco 2% (150 g) + 30 g granola\n10 g frutta secca mista"
+            ]
+          },
+          {
+            "name": "Cena",
+            "kcalHint": "~690 kcal",
+            "variants": [
+              "200 g salmone alla piastra\n250 g patate lesse\nInsalata mista + 10 g olio EVO",
+              "200 g bistecca di fassona\n200 g riso integrale\nVerdure grigliate + 8 g olio EVO"
+            ]
+          }
+        ],
+        "rules": "Surplus calorico moderato. Bevi 2.5L acqua al giorno. Creatina monoidrato 5g/die. Integratore omega-3 2g/die.",
+        "selectedVariants": { "0": 0, "1": 0, "2": 0, "3": 0, "4": 0 }
+      },
+      "measurements": [
+        {
+          "id": "m3a2b3c4d1",
+          "date": "2026-01-20",
+          "weight": 88.0,
+          "waist": 90,
+          "hips": 96,
+          "chest": 102,
+          "arm": 35,
+          "thigh": 58,
+          "calf": 38,
+          "notes": "Peso iniziale. BMR manuale impostato a 1800 su indicazione del cliente."
+        },
+        {
+          "id": "m3a2b3c4d2",
+          "date": "2026-02-17",
+          "weight": 88.8,
+          "waist": 90,
+          "hips": 96.5,
+          "chest": 102.5,
+          "arm": 35.5,
+          "thigh": 58.5,
+          "calf": 38,
+          "notes": "+0.8 kg in 4 settimane, trend bulk corretto"
+        },
+        {
+          "id": "m3a2b3c4d3",
+          "date": "2026-03-17",
+          "weight": 89.6,
+          "waist": 90.5,
+          "hips": 97,
+          "chest": 103,
+          "arm": 35.5,
+          "thigh": 59,
+          "calf": 38.5,
+          "notes": ""
+        },
+        {
+          "id": "m3a2b3c4d4",
+          "date": "2026-04-14",
+          "weight": 90.2,
+          "waist": 91,
+          "hips": 97,
+          "chest": 103.5,
+          "arm": 36,
+          "thigh": 59,
+          "calf": 38.5,
+          "notes": "Leggero aumento grasso addominale, valutare inserire cardio leggero"
+        },
+        {
+          "id": "m3a2b3c4d5",
+          "date": "2026-05-12",
+          "weight": 91.0,
+          "waist": 91,
+          "hips": 97.5,
+          "chest": 104,
+          "arm": 36,
+          "thigh": 59.5,
+          "calf": 39,
+          "notes": ""
+        },
+        {
+          "id": "m3a2b3c4d6",
+          "date": "2026-06-16",
+          "weight": 91.8,
+          "waist": 91.5,
+          "hips": 97.5,
+          "chest": 104.5,
+          "arm": 36.5,
+          "thigh": 59.5,
+          "calf": 39,
+          "notes": "+3.8 kg totali in quasi 6 mesi, buon rapporto massa magra/grasso"
+        }
+      ],
+      "photos": [],
+      "notes": [
+        {
+          "id": "n3a2b3c4d1",
+          "date": "2026-01-20T09:00:00.000Z",
+          "text": "Luca, 42 anni, torna in palestra dopo 5 anni. Vuole fare massa. BMR manuale 1800 (misurato con pesa smart). Esclusa soia per intolleranza. Allena 3x/week (full body)."
+        },
+        {
+          "id": "n3a2b3c4d2",
+          "date": "2026-04-14T16:30:00.000Z",
+          "text": "Nota a margine: leggero aumento grasso addominale. Ridurre leggermente carboidrati nella cena (da 85g a 75g) e aggiungere 20 min camminata veloce il martedì e giovedì post-pranzo."
+        }
+      ]
+    }
+  ],
+  "activeClientId": "c1a2b3c4d5e",
+  "exportedAt": "2026-07-11T18:32:00.000Z",
+  "version": "v4"
+}
