@@ -303,27 +303,6 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setData({
-        attentionScores: [
-          {
-            clientId: "test",
-            clientName: "TEST MOBILE",
-            score: 0,
-            signals: ["Diagnostica: fetch bloccata"],
-            lastCheckInDays: null,
-            weightTrend: "UNKNOWN",
-            adherenceAvg: null,
-          },
-        ],
-        stats: { totalClients: 0, activeClients: 0, totalCheckIns: 0, totalPlans: 0 },
-      });
-      setLoading(false);
-    }, 3_000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);

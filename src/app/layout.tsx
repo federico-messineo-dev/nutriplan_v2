@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/provider";
+import { MotionProvider } from "@/components/motion/provider";
 import { LegacySWCleanup } from "@/components/legacy-sw-cleanup";
-import { RootDiagnostic } from "@/components/root-diagnostic";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -46,7 +46,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-dvh antialiased dark`}
     >
       <body className="h-dvh overflow-hidden flex flex-col font-body">
-        {/* Kill old service worker BEFORE React hydrates — SEQUENCED to avoid race conditions */}
+        {/* Kill old service worker before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
             __html: [
@@ -61,53 +61,12 @@ export default function RootLayout({
               `    navigator.serviceWorker.register('/sw.js').catch(function(){});`,
               `  });`,
               `}`,
-                // Diagnostic bar
-                `var d=document.getElementById('js-diag')||document.createElement('div');`,
-                `d.id='js-diag';d.style.cssText='position:fixed;top:24px;left:0;right:0;z-index:99998;background:#333;color:#fff;font-size:9px;font-family:monospace;padding:2px 6px;text-align:center;line-height:1.4;pointer-events:none;';`,
-                `d.textContent='SEQ: OK';document.body.appendChild(d);`,
-                // Global error handler
-                `window.addEventListener('error',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='ERROR: '+String(e.message||e.error||'?').slice(0,80);el.style.background='#8b0000';}});`,
-                `window.addEventListener('unhandledrejection',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='PROMISE: '+String(e.reason).slice(0,80);el.style.background='#8b0000';}});`,
-                // Diagnostic tests
-                `window.__moduleTest=0;`,
-                `var ms=document.createElement('script');`,
-                `ms.type='module';`,
-                `ms.textContent='window.__moduleTest=1';`,
-                `document.head.appendChild(ms);`,
-                `window.__scriptTest=0;`,
-                `var st=document.createElement('script');`,
-                `st.src='/sw.js?'+Date.now();`,
-                `st.onload=function(){window.__scriptTest=1;};`,
-                `st.onerror=function(){window.__scriptTest=-1;};`,
-                `document.head.appendChild(st);`,
-                // Load actual Next.js framework chunk to test
-                `window.__nextChunkTest=0;`,
-                `var nc=document.querySelector('script[src*=\"next_dist_1nyev3z\"]');`,
-                `if(nc){`,
-                `  window.__nextChunkUrl=nc.src;`,
-                `  var nct=document.createElement('script');`,
-                `  nct.src=nc.src+'?t='+Date.now();`,
-                `  nct.onload=function(){window.__nextChunkTest=1;};`,
-                `  nct.onerror=function(){window.__nextChunkTest=-1;};`,
-                `  document.head.appendChild(nct);`,
-                `}`,
-                `function ck(){`,
-                `  var e=document.getElementById('js-diag');if(!e)return;`,
-                `  var n=typeof window.__NEXT_REGISTER_PAGE!=='undefined';`,
-                `  var n2=typeof window.next!=='undefined';`,
-                `  var f=false;var a=document.querySelectorAll('*');`,
-                `  for(var i=0;i<a.length;i++){for(var k in a[i]){if(k.indexOf('__reactFiber')===0){f=true;break}}if(f)break}`,
-                `  e.textContent='SW=CLEARED | mod='+window.__moduleTest+' | scr='+window.__scriptTest+' | nc='+window.__nextChunkTest+' | reg='+n+'/'+n2+' | fiber='+f;`,
-                `  e.style.background=f?'#2e7d32':n?'#b8862f':window.__nextChunkTest===1?'#b8862f':'#c84b31';`,
-                `}`,
-                `setTimeout(ck,3000);setTimeout(ck,8000);`,
             ].join("\n"),
           }}
         />
         <LegacySWCleanup />
         <ThemeProvider>
-          <RootDiagnostic />
-          {children}
+          <MotionProvider>{children}</MotionProvider>
         </ThemeProvider>
       </body>
     </html>
