@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/provider";
 import { MotionProvider } from "@/components/motion/provider";
 import { LegacySWCleanup } from "@/components/legacy-sw-cleanup";
+import { RootDiagnostic } from "@/components/root-diagnostic";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -61,7 +62,10 @@ export default function RootLayout({
         />
         <LegacySWCleanup />
         <ThemeProvider>
-          <MotionProvider>{children}</MotionProvider>
+          <MotionProvider>
+            <RootDiagnostic />
+            {children}
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>
