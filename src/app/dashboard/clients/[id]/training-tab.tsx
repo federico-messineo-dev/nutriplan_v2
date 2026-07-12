@@ -202,7 +202,7 @@ export function TrainingTab({ clientId }: { clientId: string }) {
         {latestPlan.sessions.map((session) => (
           <motion.button
             key={session.id}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={springSoft}
             onClick={() => analyzeSession(session.id)}
@@ -245,7 +245,7 @@ export function TrainingTab({ clientId }: { clientId: string }) {
 
       {analysis && !analyzing && (
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={springSoft}
           className="space-y-4"

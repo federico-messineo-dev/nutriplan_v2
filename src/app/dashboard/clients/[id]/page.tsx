@@ -580,7 +580,7 @@ export default function ClientDetailPage({
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: duration.fast, ease: easeOutApple }}
@@ -625,14 +625,13 @@ export default function ClientDetailPage({
         {showDeleteConfirm && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/60 "
               onClick={() => !deleting && setShowDeleteConfirm(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={springSoft}

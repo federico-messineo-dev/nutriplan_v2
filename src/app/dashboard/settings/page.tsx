@@ -166,7 +166,7 @@ export default function SettingsPage() {
             {/* Header */}
             <div className="mb-8 text-center">
               <motion.h1
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={springSoft}
                 className="font-display text-3xl text-slate-100 text-center"
@@ -174,7 +174,6 @@ export default function SettingsPage() {
                 Impostazioni
               </motion.h1>
               <motion.p
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
                 className="font-body text-slate-400 mt-1 text-center"
@@ -204,7 +203,7 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 {/* Profile form */}
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 }}
                 >
@@ -282,7 +281,7 @@ export default function SettingsPage() {
 
                 {/* Stats */}
                 <motion.div
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={{ y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.25 }}
                 >
@@ -462,7 +461,7 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35 }}
     >
@@ -553,14 +552,13 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
           {showForm && (
             <>
               <motion.div
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 bg-black/60"
                 onClick={() => !saving && setShowForm(false)}
               />
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={springSoft}
@@ -774,7 +772,7 @@ function EserciziManager({ onCountChange }: { onCountChange: () => void }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.45 }}
     >
@@ -865,14 +863,13 @@ function EserciziManager({ onCountChange }: { onCountChange: () => void }) {
           {showForm && (
             <>
               <motion.div
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 bg-black/60"
                 onClick={() => !saving && setShowForm(false)}
               />
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={springSoft}

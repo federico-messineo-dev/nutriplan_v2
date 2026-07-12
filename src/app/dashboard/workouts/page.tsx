@@ -106,7 +106,7 @@ export default function WorkoutsPage() {
             <div className="flex items-center justify-between mb-8">
               <div className="flex-1">
                 <motion.h1
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={springSoft}
                   className="font-display text-3xl text-slate-100 text-center"
@@ -114,7 +114,6 @@ export default function WorkoutsPage() {
                   Allenamenti
                 </motion.h1>
                 <motion.p
-                  initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                   className="font-body text-slate-400 mt-1 text-center"
@@ -126,7 +125,7 @@ export default function WorkoutsPage() {
 
             {/* Search + Filters */}
             <motion.div
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
               className="flex flex-col sm:flex-row gap-3 mb-6 justify-center items-center"
@@ -175,7 +174,6 @@ export default function WorkoutsPage() {
             {/* Result count */}
             {hasActiveFilters && (
               <motion.p
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-center text-sm text-slate-500 mb-4"
               >
@@ -212,7 +210,6 @@ export default function WorkoutsPage() {
               </div>
             ) : filtered.length === 0 ? (
               <motion.div
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="text-center py-16"
               >

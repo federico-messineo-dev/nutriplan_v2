@@ -194,15 +194,14 @@ function NewClientButton({ onCreated }: { onCreated: (id: string) => void }) {
       <AnimatePresence>
         {showDialog && (
           <>
-            <motion.div
-              initial={{ opacity: 0 }}
+              <motion.div
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
               onClick={() => !creating && setShowDialog(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={springSoft}
@@ -330,7 +329,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex-1">
               <motion.h1
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={springSoft}
                 className="font-display text-3xl text-slate-100 text-center"
@@ -338,7 +337,6 @@ export default function DashboardPage() {
                 Dashboard
               </motion.h1>
               <motion.p
-                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
                 className="font-body text-slate-400 mt-1 text-center"
@@ -465,14 +463,13 @@ export default function DashboardPage() {
         {deleteTarget && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/60 "
               onClick={() => !deleting && setDeleteTarget(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={springSoft}

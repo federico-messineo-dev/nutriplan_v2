@@ -38,7 +38,6 @@ export function Dialog({ open, onClose, children, title, className }: DialogProp
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
@@ -46,7 +45,7 @@ export function Dialog({ open, onClose, children, title, className }: DialogProp
           />
           {/* Panel */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: "spring", stiffness: 400, damping: 32 }}

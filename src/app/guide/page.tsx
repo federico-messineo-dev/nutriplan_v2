@@ -19,7 +19,7 @@ export default function StyleGuidePage() {
         <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
           <motion.h1
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={springSoft}
             className="font-display text-3xl text-slate-100 mb-8"
@@ -184,7 +184,7 @@ export default function StyleGuidePage() {
               ].map((t) => (
                 <motion.div
                   key={t.label}
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: t.delay, ease: easeOutApple }}
                   className="p-4 bg-slate-800/50 rounded-[var(--radius-md)] text-center border border-slate-700/30"

@@ -159,7 +159,6 @@ export function CommandPalette() {
         <>
           {/* Backdrop */}
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
@@ -169,7 +168,7 @@ export function CommandPalette() {
 
           {/* Palette */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: -20 }}
+            initial={{ scale: 0.96, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -20 }}
             transition={springSnappy}
@@ -274,14 +273,13 @@ export function CommandPalette() {
         {showNewClientDialog && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
               onClick={() => !creating && setShowNewClientDialog(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={springSoft}

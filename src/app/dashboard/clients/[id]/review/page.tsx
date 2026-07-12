@@ -242,7 +242,7 @@ export default function WeeklyReviewPage({
         <AnimatePresence>
           {approved && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               className="bg-green-500/10 border border-green-500/30 rounded-[var(--radius-md)] p-4 flex items-center gap-3"
@@ -258,7 +258,7 @@ export default function WeeklyReviewPage({
           )}
           {rejected && (
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               className="bg-slate-800/50 border border-slate-700/50 rounded-[var(--radius-md)] p-4 flex items-center gap-3"
@@ -276,7 +276,7 @@ export default function WeeklyReviewPage({
 
         {/* Current state */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={springSoft}
           className="bg-slate-900/50 border border-slate-700/50 rounded-[var(--radius-md)] p-6"
@@ -319,7 +319,7 @@ export default function WeeklyReviewPage({
         {/* Weight trend */}
         {weightTrend.length > 1 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springSoft, delay: 0.1 }}
             className="bg-slate-900/50 border border-slate-700/50 rounded-[var(--radius-md)] p-6"
@@ -359,7 +359,7 @@ export default function WeeklyReviewPage({
 
         {/* Recalibration proposal */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springSoft, delay: 0.15 }}
           className={cn(
@@ -466,7 +466,7 @@ export default function WeeklyReviewPage({
 
         {/* Drafted meals */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...springSoft, delay: 0.2 }}
           className="bg-slate-900/50 border border-slate-700/50 rounded-[var(--radius-md)] p-6"
@@ -504,7 +504,7 @@ export default function WeeklyReviewPage({
         {/* Action buttons */}
         {!done && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springSoft, delay: 0.25 }}
             className="flex items-center gap-3 pb-12"
@@ -531,7 +531,6 @@ export default function WeeklyReviewPage({
         {/* Back link after done */}
         {done && (
           <motion.div
-            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="pb-12"
