@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import {
   Dumbbell,
   TrendingUp,
@@ -71,7 +72,7 @@ export function TrainingTab({ clientId }: { clientId: string }) {
     async function load() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/clients/${clientId}`);
+        const res = await fetchWithTimeout(`/api/clients/${clientId}`);
         const data = await res.json();
         // Workout plans aren't included in the client API yet — stub for now
         setPlans(data.client?.workoutPlans || []);

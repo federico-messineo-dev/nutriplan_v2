@@ -10,6 +10,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
 import { StaggerList, StaggerItem } from "@/components/motion/stagger-list";
+import { showToast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Users,
@@ -106,7 +107,7 @@ export default function ClientsPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/clients/${deleteTarget.id}`, { method: "DELETE" });
+      const res = await fetchWithTimeout(`/api/clients/${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
         setDeleteTarget(null);
         fetchClients();
@@ -121,17 +122,19 @@ export default function ClientsPage() {
     if (!fullName) return;
     setCreating(true);
     try {
-      const res = await fetch("/api/clients", {
+      const res = await fetchWithTimeout("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName }),
       });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data = await res.json();
-      setCreating(false);
       setShowNewClientDialog(false);
       setNewFirstName("");
       setNewLastName("");
       if (data.client?.id) router.push(`/dashboard/clients/${data.client.id}`);
+    } catch {
+      showToast("Errore nella creazione del cliente", "error");
     } finally {
       setCreating(false);
     }

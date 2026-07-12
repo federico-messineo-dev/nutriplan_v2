@@ -23,6 +23,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
+import { showToast } from "@/components/ui/toast";
 
 interface AttentionScore {
   clientId: string;
@@ -161,17 +162,23 @@ function NewClientButton({ onCreated }: { onCreated: (id: string) => void }) {
     const fullName = `${firstName} ${lastName}`.trim();
     if (!fullName) return;
     setCreating(true);
-    const res = await fetch("/api/clients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fullName }),
-    });
-    const data = await res.json();
-    setCreating(false);
-    setShowDialog(false);
-    setFirstName("");
-    setLastName("");
-    if (data.client?.id) onCreated(data.client.id);
+    try {
+      const res = await fetchWithTimeout("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName }),
+      });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const data = await res.json();
+      setShowDialog(false);
+      setFirstName("");
+      setLastName("");
+      if (data.client?.id) onCreated(data.client.id);
+    } catch {
+      showToast("Errore nella creazione del cliente", "error");
+    } finally {
+      setCreating(false);
+    }
   };
 
   return (
@@ -301,7 +308,7 @@ export default function DashboardPage() {
     if (!deleteTarget) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/clients/${deleteTarget.id}`, { method: "DELETE" });
+      const res = await fetchWithTimeout(`/api/clients/${deleteTarget.id}`, { method: "DELETE" });
       if (res.ok) {
         setDeleteTarget(null);
         fetchData();

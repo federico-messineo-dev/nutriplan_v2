@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { Reorder } from "framer-motion";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import {
   Plus,
   Trash2,
@@ -158,9 +159,18 @@ export function PlanBuilder({
   );
 
   useEffect(() => {
-    fetch("/api/recipes")
-      .then((r) => r.json())
-      .then((d) => setRecipes(d.recipes || []));
+    async function loadRecipes() {
+      try {
+        const r = await fetchWithTimeout("/api/recipes");
+        if (r.ok) {
+          const d = await r.json();
+          setRecipes(d.recipes || []);
+        }
+      } catch {
+        setRecipes([]);
+      }
+    }
+    loadRecipes();
   }, []);
 
   const totals = useMemo(() => {
