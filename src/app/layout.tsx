@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/provider";
-import { MotionProvider } from "@/components/motion/provider";
 import { LegacySWCleanup } from "@/components/legacy-sw-cleanup";
 import { RootDiagnostic } from "@/components/root-diagnostic";
 
@@ -62,10 +61,8 @@ export default function RootLayout({
         />
         <LegacySWCleanup />
         <ThemeProvider>
-          <MotionProvider>
-            <RootDiagnostic />
-            {children}
-          </MotionProvider>
+          <RootDiagnostic />
+          {children}
         </ThemeProvider>
       </body>
     </html>
