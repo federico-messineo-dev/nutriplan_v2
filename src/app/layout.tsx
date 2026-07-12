@@ -46,48 +46,34 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-dvh antialiased dark`}
     >
       <body className="h-dvh overflow-hidden flex flex-col font-body">
-        {/* Kill old service worker BEFORE React hydrates */}
+        {/* Kill old service worker BEFORE React hydrates — SEQUENCED to avoid race conditions */}
         <script
           dangerouslySetInnerHTML={{
             __html: [
-              'if ("serviceWorker" in navigator) {',
-              "  navigator.serviceWorker.register('/sw.js').catch(function(){});",
-              '  if ("caches" in window) {',
-              "    caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k)})});",
-              "  }",
-              "}",
-              // Diagnostic: check if JS chunks load and execute
-              "window.__inlineRan = true;",
-              // Global error catcher (also catches module script errors)
-              "window.addEventListener('error',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='JS ERROR: '+String(e.message||e.error).slice(0,120);el.style.background='#8b0000';}});",
-              "window.addEventListener('unhandledrejection',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='PROMISE: '+String(e.reason).slice(0,120);el.style.background='#8b0000';}});",
-              "var rd = document.createElement('div');",
-              "rd.id = 'js-diag';",
-              "rd.style.cssText = 'position:fixed;top:24px;left:0;right:0;z-index:99998;background:#333;color:#fff;font-size:9px;font-family:monospace;padding:2px 6px;text-align:center;line-height:1.4;';",
-              "rd.textContent = 'INLINE: OK';",
-              "document.body.appendChild(rd);",
-              "function checkJS(){",
-              "  var el = document.getElementById('js-diag');",
-              "  if(!el) return;",
-              "  var chunks = document.querySelectorAll('script[src*=\"/_next/static/chunks/\"]');",
-              "  var hasNextChunks = chunks.length > 0;",
-              // Check if chunks truly loaded using performance API
-              "  var scriptsLoaded = false;",
-              "  try{var perf=performance.getEntriesByType('resource')||[];for(var i=0;i<perf.length;i++){if(perf[i].name.indexOf('/_next/static/chunks/')>-1&&(perf[i].responseEnd>0||perf[i].responseStatus===200)){scriptsLoaded=true;break}}}catch(e){}",
-              // React globals
-              "  var hasNextRegister = typeof window.__NEXT_REGISTER_PAGE !== 'undefined';",
-              "  var hasNextData = typeof window.__NEXT_DATA__ !== 'undefined';",
-              // Check React fiber
-              "  var all = document.querySelectorAll('*');",
-              "  var hasReactFiber = false;",
-              "  for(var i=0;i<all.length;i++){for(var k in all[i]){if(k.indexOf('__reactFiber')===0||k.indexOf('__reactProps')===0){hasReactFiber=true;break}}if(hasReactFiber)break}",
-              "  var bodyKids = document.body ? document.body.children.length : -1;",
-              // Fetch test: try to download a small resource to check network
-              "  el.textContent = '3s | chunks=' + hasNextChunks + '(' + chunks.length + ') | perf=' + scriptsLoaded + ' | reg=' + hasNextRegister + ' | fiber=' + hasReactFiber + ' | kids=' + bodyKids;",
-              "  el.style.background = hasReactFiber ? '#2e7d32' : '#b8862f';",
-              "}",
-              "setTimeout(checkJS, 3000);",
-              "setTimeout(checkJS, 8000);",
+              `if ("serviceWorker" in navigator) {`,
+              `  navigator.serviceWorker.getRegistrations().then(function(regs){`,
+              `    return Promise.all(regs.map(function(r){return r.unregister()}));`,
+              `  }).then(function(){`,
+              `    if ("caches" in window) {`,
+              `      return caches.keys().then(function(keys){return Promise.all(keys.map(function(k){return caches.delete(k)}))});`,
+              `    }`,
+              `  }).then(function(){`,
+              `    navigator.serviceWorker.register('/sw.js').catch(function(){});`,
+              `  });`,
+              `}`,
+              // Diagnostic banner
+              `var d=document.getElementById('js-diag')||document.createElement('div');`,
+              `d.id='js-diag';d.style.cssText='position:fixed;top:24px;left:0;right:0;z-index:99998;background:#333;color:#fff;font-size:9px;font-family:monospace;padding:2px 6px;text-align:center;line-height:1.4;pointer-events:none;';`,
+              `d.textContent='SEQ: OK';document.body.appendChild(d);`,
+              `function ck(){`,
+              `  var e=document.getElementById('js-diag');if(!e)return;`,
+              `  var n=typeof window.__NEXT_REGISTER_PAGE!=='undefined';`,
+              `  var f=false;var a=document.querySelectorAll('*');`,
+              `  for(var i=0;i<a.length;i++){for(var k in a[i]){if(k.indexOf('__reactFiber')===0){f=true;break}}if(f)break}`,
+              `  e.textContent='SW=CLEARED | reg='+n+' | fiber='+f;`,
+              `  e.style.background=f?'#2e7d32':n?'#b8862f':'#c84b31';`,
+              `}`,
+              `setTimeout(ck,3000);setTimeout(ck,8000);`,
             ].join("\n"),
           }}
         />
