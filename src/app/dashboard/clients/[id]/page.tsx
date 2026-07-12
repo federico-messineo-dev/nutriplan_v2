@@ -22,6 +22,7 @@ import {
   Trash2,
   AlertTriangle,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { showToast } from "@/components/ui/toast";
@@ -73,8 +74,8 @@ const tabs = [
   { key: "feed", label: "Feed", icon: BarChart3, step: "01" },
   { key: "profile", label: "Dati", icon: User, step: "02" },
   { key: "strategy", label: "Strategia", icon: Target, step: "03" },
-  { key: "plan", label: "Piano", icon: Utensils, step: "04" },
-  { key: "training", label: "Allenamento", icon: Dumbbell, step: "05" },
+  { key: "plan", label: "Piano", icon: Utensils, step: "04", ai: true },
+  { key: "training", label: "Allenamento", icon: Dumbbell, step: "05", ai: true },
   { key: "measure", label: "Misure", icon: Ruler, step: "+" },
   { key: "photos", label: "Foto", icon: Camera, step: "+" },
   { key: "notes", label: "Note", icon: StickyNote, step: "+" },
@@ -531,6 +532,9 @@ export default function ClientDetailPage({
               >
                 <tab.icon size={16} />
                 <span className="flex-1 text-left">{tab.label}</span>
+                {"ai" in tab && tab.ai && (
+                  <Sparkles size={12} className="text-purple-400" />
+                )}
                 <span className="font-mono text-[10px] text-slate-600">{tab.step}</span>
               </button>
             );
@@ -566,6 +570,9 @@ export default function ClientDetailPage({
             >
               <tab.icon size={12} />
               {tab.label}
+              {"ai" in tab && tab.ai && (
+                <Sparkles size={10} className="text-purple-400" />
+              )}
             </button>
           ))}
         </div>
