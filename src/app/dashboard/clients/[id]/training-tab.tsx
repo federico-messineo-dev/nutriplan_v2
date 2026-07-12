@@ -12,7 +12,9 @@ import {
   AlertTriangle,
   Check,
   RefreshCw,
+  Send,
 } from "lucide-react";
+import { WorkoutPDFDownload } from "@/components/workout-pdf";
 
 interface LoadRecommendation {
   exerciseId: string;
@@ -128,6 +130,32 @@ export function TrainingTab({ clientId }: { clientId: string }) {
 
   const latestPlan = plans[0];
 
+  const handleSendPDF = async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const { WorkoutPDF } = await import("@/components/workout-pdf");
+    const blob = await pdf(
+      <WorkoutPDF
+        data={{
+          clientName: "Cliente",
+          weekStart: latestPlan.weekStart,
+          sessions: latestPlan.sessions.map((s) => ({
+            dayOfWeek: s.dayOfWeek,
+            name: s.name,
+            exercises: s.exercises.map((e) => ({
+              name: e.exercise.name,
+              muscleGroup: e.exercise.muscleGroup,
+              targetSets: e.targetSets,
+              targetRepsMin: e.targetRepsMin,
+              targetRepsMax: e.targetRepsMax,
+            })),
+          })),
+        }}
+      />
+    ).toBlob();
+    const url = URL.createObjectURL(blob);
+    window.open(`https://wa.me/?text=${encodeURIComponent("Ecco il tuo piano di allenamento NutriPlan 💪")}&url=${encodeURIComponent(url)}`, "_blank");
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Plan info */}
@@ -139,6 +167,32 @@ export function TrainingTab({ clientId }: { clientId: string }) {
           <p className="font-meta text-slate-500 text-xs">
             {new Date(latestPlan.weekStart).toLocaleDateString("it-IT")} — {latestPlan.status}
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <WorkoutPDFDownload
+            data={{
+              clientName: "Cliente",
+              weekStart: latestPlan.weekStart,
+              sessions: latestPlan.sessions.map((s) => ({
+                dayOfWeek: s.dayOfWeek,
+                name: s.name,
+                exercises: s.exercises.map((e) => ({
+                  name: e.exercise.name,
+                  muscleGroup: e.exercise.muscleGroup,
+                  targetSets: e.targetSets,
+                  targetRepsMin: e.targetRepsMin,
+                  targetRepsMax: e.targetRepsMax,
+                })),
+              })),
+            }}
+          />
+          <button
+            onClick={handleSendPDF}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--radius-sm)] bg-cyan-500/10 border border-cyan-500/30 text-xs font-body text-cyan-400 hover:bg-cyan-500/20 transition-colors"
+          >
+            <Send size={12} />
+            Invia PDF
+          </button>
         </div>
       </div>
 

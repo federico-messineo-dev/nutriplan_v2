@@ -11,6 +11,7 @@ import {
   Search,
 } from "lucide-react";
 import { PlanPDFDownload } from "@/components/plan-pdf";
+import { Send } from "lucide-react";
 
 interface Recipe {
   id: string;
@@ -267,19 +268,53 @@ export function PlanBuilder({
     onSaved();
   };
 
+  const handleSendPDF = async () => {
+    const { pdf } = await import("@react-pdf/renderer");
+    const { PlanPDF } = await import("@/components/plan-pdf");
+    const blob = await pdf(
+      <PlanPDF
+        data={{
+          clientName: client.fullName || "Cliente",
+          meals: plan.meals,
+          rules: plan.rules,
+          recipes: recipes,
+          targets: { kcal: 2000, p: 120, c: 200, f: 60 },
+        }}
+      />
+    ).toBlob();
+    const file = new File([blob], `piano-${(client.fullName || "cliente").toLowerCase().replace(/\s+/g, "-")}.pdf`, { type: "application/pdf" });
+    if (navigator.share) {
+      try {
+        await navigator.share({ files: [file], title: "Piano alimentare NutriPlan" });
+      } catch { /* user cancelled */ }
+    } else {
+      const url = URL.createObjectURL(blob);
+      window.open(`https://wa.me/?text=${encodeURIComponent("Ecco il tuo piano alimentare NutriPlan 🍽️")}&url=${encodeURIComponent(url)}`, "_blank");
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="font-display text-2xl text-slate-100 text-center">Piano alimentare</h2>
-        <PlanPDFDownload
-          data={{
-            clientName: client.fullName || "Cliente",
-            meals: plan.meals,
-            rules: plan.rules,
-            recipes: recipes,
-            targets: { kcal: 2000, p: 120, c: 200, f: 60 },
-          }}
-        />
+        <div className="flex items-center gap-2">
+          <PlanPDFDownload
+            data={{
+              clientName: client.fullName || "Cliente",
+              meals: plan.meals,
+              rules: plan.rules,
+              recipes: recipes,
+              targets: { kcal: 2000, p: 120, c: 200, f: 60 },
+            }}
+          />
+          <button
+            onClick={handleSendPDF}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-[var(--radius-sm)] bg-cyan-500/10 border border-cyan-500/30 text-xs font-body text-cyan-400 hover:bg-cyan-500/20 transition-colors"
+          >
+            <Send size={12} />
+            Invia PDF
+          </button>
+        </div>
       </div>
 
       {/* Totals bar */}

@@ -187,7 +187,7 @@ function calcMealKcal(meal: Meal, recipes: Recipe[]): number {
   return meal.items.reduce((sum, item) => sum + calcItemKcal(item, recipes), 0);
 }
 
-function PlanPDF({ data }: { data: PlanPDFData }) {
+export function PlanPDF({ data }: { data: PlanPDFData }) {
   const totalKcal = data.meals.reduce((sum, m) => sum + calcMealKcal(m, data.recipes), 0);
 
   return (
