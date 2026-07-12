@@ -46,6 +46,19 @@ export default function RootLayout({
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-dvh antialiased dark`}
     >
       <body className="h-dvh overflow-hidden flex flex-col font-body">
+        {/* Kill old service worker BEFORE React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: [
+              'if ("serviceWorker" in navigator) {',
+              "  navigator.serviceWorker.register('/sw.js').catch(function(){});",
+              '  if ("caches" in window) {',
+              "    caches.keys().then(function(keys){keys.forEach(function(k){caches.delete(k)})});",
+              "  }",
+              "}",
+            ].join("\n"),
+          }}
+        />
         <LegacySWCleanup />
         <ThemeProvider>
           <MotionProvider>{children}</MotionProvider>
