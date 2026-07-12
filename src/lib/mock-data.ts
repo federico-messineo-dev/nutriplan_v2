@@ -340,13 +340,19 @@ const DATA_STORE: Record<string, Record<string, unknown>[]> = {
 };
 
 // Handles `include` expansions for Prisma relation includes
-function applyInclude<T extends Record<string, unknown>>(item: T, include?: Record<string, boolean>): T {
+function applyInclude<T extends Record<string, unknown>>(item: T, include?: Record<string, unknown>): T {
   if (!include) return item;
   const result = { ...item };
-  for (const [rel, active] of Object.entries(include)) {
-    if (!active) continue;
+  for (const [rel, config] of Object.entries(include)) {
+    if (!config) continue;
     if (rel === "checkIns") {
-      (result as Record<string, unknown>).checkIns = mockCheckIns.filter((c) => c.clientId === item.id);
+      let cis = mockCheckIns.filter((c) => c.clientId === item.id) as unknown as Record<string, unknown>[];
+      if (typeof config === "object" && config !== null) {
+        const opts = config as { orderBy?: Record<string, string>; take?: number };
+        if (opts.orderBy) cis = applyOrderBy(cis, opts.orderBy);
+        if (opts.take) cis = applyTake(cis, opts.take);
+      }
+      (result as Record<string, unknown>).checkIns = cis;
     }
     if (rel === "sessions") {
       if (item.id && DATA_STORE.workoutPlan) {
@@ -365,7 +371,7 @@ function applyInclude<T extends Record<string, unknown>>(item: T, include?: Reco
 
 function buildMockDelegate<T extends Record<string, unknown>>(data: T[]) {
   return {
-    findMany: ({ where, orderBy, take, include }: { where?: Record<string, unknown>; orderBy?: Record<string, string> | Record<string, string>[]; take?: number; include?: Record<string, boolean> } = {}) => {
+    findMany: ({ where, orderBy, take, include }: { where?: Record<string, unknown>; orderBy?: Record<string, string> | Record<string, string>[]; take?: number; include?: Record<string, unknown> } = {}) => {
       let result = applyWhere(data, where);
       result = applyOrderBy(result, orderBy);
       result = applyTake(result, take);
@@ -374,7 +380,7 @@ function buildMockDelegate<T extends Record<string, unknown>>(data: T[]) {
       }
       return Promise.resolve(result);
     },
-    findUnique: ({ where, include }: { where: Record<string, unknown>; include?: Record<string, boolean> }) => {
+    findUnique: ({ where, include }: { where: Record<string, unknown>; include?: Record<string, unknown> }) => {
       const found = data.find((item) => {
         for (const [key, val] of Object.entries(where)) {
           if (item[key] !== val) return false;

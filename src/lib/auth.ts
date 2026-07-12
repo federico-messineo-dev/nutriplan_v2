@@ -6,6 +6,10 @@
 
 export function getTrainerId(): string {
   const id = process.env.TRAINER_ID;
-  if (!id) throw new Error("TRAINER_ID not set in environment variables.");
-  return id;
+  if (id) return id;
+  // In mock mode (Vercel without Postgres), return the mock trainer ID
+  if (process.env.NODE_ENV === "production" && !process.env.DATABASE_URL?.startsWith("postgres")) {
+    return "trainer_001";
+  }
+  throw new Error("TRAINER_ID not set in environment variables.");
 }
