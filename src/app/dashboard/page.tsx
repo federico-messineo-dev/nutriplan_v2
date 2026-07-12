@@ -1,7 +1,6 @@
 "use client";
 
 import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { StaggerList, StaggerItem } from "@/components/motion/stagger-list";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -323,28 +322,29 @@ export default function DashboardPage() {
     <div className="flex h-full">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+            <div>
               <motion.h1
                 initial={{ y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={springSoft}
-                className="font-display text-3xl text-slate-100 text-center"
+                className="font-display text-2xl sm:text-3xl text-slate-100 text-center sm:text-left"
               >
                 Dashboard
               </motion.h1>
               <motion.p
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
-                className="font-body text-slate-400 mt-1 text-center"
+                className="font-body text-slate-400 mt-1 text-center sm:text-left"
               >
                 Panoramica dei tuoi clienti attivi
               </motion.p>
             </div>
-            <NewClientButton onCreated={(id) => router.push(`/dashboard/clients/${id}`)} />
+            <div className="flex justify-center sm:justify-end">
+              <NewClientButton onCreated={(id) => router.push(`/dashboard/clients/${id}`)} />
+            </div>
           </div>
 
           {/* Stats */}

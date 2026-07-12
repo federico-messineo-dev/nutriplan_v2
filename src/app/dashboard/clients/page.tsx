@@ -7,7 +7,6 @@ import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
 import { StaggerList, StaggerItem } from "@/components/motion/stagger-list";
 import { showToast } from "@/components/ui/toast";
@@ -161,35 +160,36 @@ export default function ClientsPage() {
     <div className="flex h-full">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-8">
+              <div>
                 <motion.h1
                   initial={{ y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={springSoft}
-                  className="font-display text-3xl text-slate-100 text-center"
+                  className="font-display text-2xl sm:text-3xl text-slate-100 text-center sm:text-left"
                 >
                   Clienti
                 </motion.h1>
                 <motion.p
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="font-body text-slate-400 mt-1 text-center"
+                  className="font-body text-slate-400 mt-1 text-center sm:text-left"
                 >
                   {clients.length} {clients.length === 1 ? "cliente" : "clienti"} totali
                 </motion.p>
               </div>
-              <button
-                onClick={() => setShowNewClientDialog(true)}
-                className="flex items-center gap-2 h-10 px-4 rounded-[var(--radius-sm)] bg-cyan-600 text-white text-sm font-medium hover:bg-cyan-700 transition-colors shadow-sm shadow-cyan-500/20"
-              >
-                <Plus size={16} />
-                Nuovo cliente
-              </button>
+              <div className="flex justify-center sm:justify-end">
+                <button
+                  onClick={() => setShowNewClientDialog(true)}
+                  className="flex items-center gap-2 h-10 px-4 rounded-[var(--radius-sm)] bg-cyan-600 text-white text-sm font-medium hover:bg-cyan-700 transition-colors shadow-sm shadow-cyan-500/20"
+                >
+                  <Plus size={16} />
+                  Nuovo cliente
+                </button>
+              </div>
             </div>
 
             {/* Search + Filters */}

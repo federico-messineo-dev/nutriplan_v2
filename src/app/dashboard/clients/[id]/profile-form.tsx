@@ -150,7 +150,7 @@ export function ProfileForm({
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 overflow-x-hidden">
       <h2 className="font-display text-2xl text-slate-100 text-center">Profilo cliente</h2>
 
       {/* Card 1: Anagrafica */}
@@ -372,44 +372,49 @@ export function ProfileForm({
             const pct = form.mealDistribution[slot] || 0;
             const kcal = Math.round(totalKcal * pct / 100);
             return (
-              <div key={slot} className="flex items-center gap-3">
-                <span className="font-body text-sm text-slate-300 w-36 shrink-0">
+              <div key={slot} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+                <span className="font-body text-sm text-slate-300 w-36 shrink min-w-0">
                   {MEAL_SLOT_LABELS[slot]}
                 </span>
-                <input
-                  type="range"
-                  min={0}
-                  max={60}
-                  step={5}
-                  value={pct}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    setForm((prev) => ({
-                      ...prev,
-                      mealDistribution: { ...prev.mealDistribution, [slot]: val },
-                    }));
-                  }}
-                  className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-                />
-                <div className="flex items-center gap-1 w-20 shrink-0">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
                   <input
-                    type="number"
+                    type="range"
                     min={0}
                     max={60}
                     step={5}
                     value={pct}
                     onChange={(e) => {
-                      const val = parseInt(e.target.value) || 0;
+                      const val = parseInt(e.target.value);
                       setForm((prev) => ({
                         ...prev,
                         mealDistribution: { ...prev.mealDistribution, [slot]: val },
                       }));
                     }}
-                    className="w-12 h-8 px-1 text-center rounded border border-slate-700/50 bg-slate-800/50 text-xs font-mono text-slate-100"
+                    className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500 min-w-0"
                   />
-                  <span className="font-meta text-[10px] text-slate-500">%</span>
+                  <div className="flex items-center gap-1 w-20 shrink min-w-0">
+                    <input
+                      type="number"
+                      min={0}
+                      max={60}
+                      step={5}
+                      value={pct}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        setForm((prev) => ({
+                          ...prev,
+                          mealDistribution: { ...prev.mealDistribution, [slot]: val },
+                        }));
+                      }}
+                      className="w-12 h-8 px-1 text-center rounded border border-slate-700/50 bg-slate-800/50 text-xs font-mono text-slate-100"
+                    />
+                    <span className="font-meta text-[10px] text-slate-500">%</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-slate-500 w-14 text-right shrink min-w-0 hidden sm:block">
+                    {kcal} kcal
+                  </span>
                 </div>
-                <span className="font-mono text-[10px] text-slate-500 w-14 text-right shrink-0">
+                <span className="font-mono text-[10px] text-slate-500 sm:hidden">
                   {kcal} kcal
                 </span>
               </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState, useCallback } from "react";
+import { use, useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSoft, duration, easeOutApple } from "@/lib/motion";
@@ -82,6 +82,118 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]["key"];
 
+// --- Weight Trend Chart ---
+function WeightTrendChart({ checkIns }: { checkIns: CheckIn[] }) {
+  const withWeight = checkIns.filter((c) => c.weightKg != null).reverse();
+  if (withWeight.length < 2) return null;
+
+  const weights = withWeight.map((c) => c.weightKg!);
+  const min = Math.min(...weights);
+  const max = Math.max(...weights);
+  const paddedMin = min - (max - min) * 0.15;
+  const paddedMax = max + (max - min) * 0.15;
+  const range = paddedMax - paddedMin || 1;
+
+  const W = 600, H = 200, PL = 45, PR = 20, PT = 20, PB = 30;
+  const CW = W - PL - PR, CH = H - PT - PB;
+  const n = withWeight.length;
+
+  const x = (i: number) => PL + (i / (n - 1)) * CW;
+  const y = (w: number) => PT + CH - ((w - paddedMin) / range) * CH;
+
+  const linePoints = withWeight.map((c, i) => `${x(i)},${y(c.weightKg!)}`).join(" ");
+  const areaPath = `M${x(0)},${H - PB} L${linePoints} L${x(n - 1)},${H - PB} Z`;
+
+  const change = (weights[weights.length - 1] - weights[0]).toFixed(1);
+  const trend = parseFloat(change);
+  const changeColor = trend < 0 ? "text-cyan-400" : trend > 0 ? "text-green-400" : "text-slate-400";
+
+  return (
+    <div className="bg-slate-900/50 border border-slate-700/50 rounded-[var(--radius-md)] p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-meta text-slate-500">Trend peso</h3>
+        <span className={cn("font-mono text-xs", changeColor)}>
+          {trend > 0 ? "+" : ""}{change} kg ({withWeight.length} rilevaz.)
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="weight-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.15" className="text-cyan-500" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" className="text-cyan-500" />
+          </linearGradient>
+        </defs>
+        {/* Grid lines */}
+        {[0.25, 0.5, 0.75].map((f) => (
+          <line
+            key={f}
+            x1={PL} y1={PT + CH * (1 - f)}
+            x2={W - PR} y2={PT + CH * (1 - f)}
+            stroke="rgb(100 116 139 / 0.15)"
+            strokeWidth="1"
+          />
+        ))}
+        {/* Area fill */}
+        <path d={areaPath} fill="url(#weight-fill)" />
+        {/* Line */}
+        <polyline
+          points={linePoints}
+          fill="none"
+          stroke="rgb(6 182 212)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="opacity-90"
+        />
+        {/* Dots */}
+        {withWeight.map((c, i) => (
+          <g key={c.id}>
+            <circle cx={x(i)} cy={y(c.weightKg!)} r="3" fill="rgb(6 182 212)" className="opacity-90" />
+            {/* Labels: first, last, min, max */}
+            {(i === 0 || i === n - 1 || c.weightKg === min || c.weightKg === max) && (
+              <text
+                x={x(i)}
+                y={y(c.weightKg!) - 8}
+                textAnchor="middle"
+                fill="rgb(148 163 184)"
+                fontSize="9"
+                fontFamily="JetBrains Mono, monospace"
+              >
+                {c.weightKg}
+              </text>
+            )}
+          </g>
+        ))}
+        {/* Date labels */}
+        {n > 2
+          ? [0, Math.floor(n / 2), n - 1].map((i) => (
+              <text
+                key={i}
+                x={x(i)}
+                y={H - 6}
+                textAnchor="middle"
+                fill="rgb(71 85 105)"
+                fontSize="8"
+                fontFamily="JetBrains Mono, monospace"
+              >
+                {new Date(withWeight[i].createdAt).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })}
+              </text>
+            ))
+          : (
+            <>
+              <text x={x(0)} y={H - 6} textAnchor="start" fill="rgb(71 85 105)" fontSize="8" fontFamily="JetBrains Mono, monospace">
+                {new Date(withWeight[0].createdAt).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })}
+              </text>
+              <text x={x(n - 1)} y={H - 6} textAnchor="end" fill="rgb(71 85 105)" fontSize="8" fontFamily="JetBrains Mono, monospace">
+                {new Date(withWeight[n - 1].createdAt).toLocaleDateString("it-IT", { day: "2-digit", month: "2-digit" })}
+              </text>
+            </>
+          )}
+      </svg>
+    </div>
+  );
+}
+
 // --- Feed Tab ---
 function FeedTab({ client }: { client: Client }) {
   const sortedCheckIns = [...client.checkIns].sort(
@@ -128,6 +240,11 @@ function FeedTab({ client }: { client: Client }) {
             {new Date(latest.createdAt).toLocaleDateString("it-IT")}
           </p>
         </div>
+      )}
+
+      {/* Weight trend chart */}
+      {sortedCheckIns.filter((c) => c.weightKg != null).length >= 2 && (
+        <WeightTrendChart checkIns={sortedCheckIns} />
       )}
 
       {/* Checklist */}
@@ -430,6 +547,15 @@ export default function ClientDetailPage({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  const tabBarRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
+
+  const onTabScroll = useCallback(() => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    setShowScrollHint(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -555,28 +681,43 @@ export default function ClientDetailPage({
       {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile tab bar */}
-        <div className="md:hidden flex border-b border-slate-700/50 overflow-x-auto sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-3 text-xs whitespace-nowrap border-b-2 transition-colors",
-                activeTab === tab.key
-                  ? "border-cyan-500 text-cyan-400"
-                  : "border-transparent text-slate-500",
-              )}
-            >
-              <tab.icon size={12} />
-              {tab.label}
-              {"ai" in tab && tab.ai && (
-                <span className="text-[10px]">✨</span>
-              )}
-            </button>
-          ))}
+        <div className="relative md:hidden">
+          <div
+            ref={tabBarRef}
+            className="flex border-b border-slate-700/50 overflow-x-auto sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm rounded-b-3xl scroll-smooth"
+            onScroll={onTabScroll}
+          >
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3.5 text-sm whitespace-nowrap border-b-2 transition-colors shrink-0",
+                  activeTab === tab.key
+                    ? "border-cyan-500 text-cyan-400"
+                    : "border-transparent text-slate-500",
+                )}
+              >
+                <tab.icon size={15} />
+                {tab.label}
+                {"ai" in tab && tab.ai && (
+                  <span className="text-[10px]">✨</span>
+                )}
+              </button>
+            ))}
+          </div>
+          {/* Scroll hint gradient */}
+          <div
+            ref={scrollHintRef}
+            className="absolute right-0 top-0 bottom-0 w-10 rounded-b-3xl pointer-events-none transition-opacity duration-300"
+            style={{
+              background: "linear-gradient(to left, rgba(15,23,42,0.95), transparent)",
+              opacity: showScrollHint ? 1 : 0,
+            }}
+          />
         </div>
 
-        <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 mobile-bottom-pad">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

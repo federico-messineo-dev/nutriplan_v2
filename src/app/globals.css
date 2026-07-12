@@ -158,16 +158,12 @@ select option {
 }
 
 /* ============================================================
-   MOBILE — safe area + bottom nav padding
+   MOBILE — bottom nav padding
    ============================================================ */
-
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
 
 @media (max-width: 767px) {
   .mobile-bottom-pad {
-    padding-bottom: 4.5rem;
+    padding-bottom: 5.5rem;
   }
 }
 

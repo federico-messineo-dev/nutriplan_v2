@@ -1,7 +1,6 @@
 "use client";
 
 import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,6 @@ export default function StyleGuidePage() {
     <div className="flex h-screen">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
           <motion.h1
             initial={{ y: -10 }}

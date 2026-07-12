@@ -1,6 +1,5 @@
 "use client";
 
-import { CommandPalette } from "@/components/command-palette";
 import { ParticleBackground } from "@/components/particle-background";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { usePathname } from "next/navigation";
@@ -17,7 +16,6 @@ export default function DashboardLayout({
   return (
     <div className="relative h-full overflow-hidden">
       <ParticleBackground />
-      <CommandPalette />
       <MobileNav />
       <div className="relative z-10 h-full min-h-0">
         <AnimatePresence mode="wait">

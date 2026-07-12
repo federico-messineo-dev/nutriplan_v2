@@ -6,7 +6,6 @@ import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
 import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { Sidebar } from "@/components/layout/sidebar";
-import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StaggerList, StaggerItem } from "@/components/motion/stagger-list";
@@ -99,7 +98,6 @@ export default function PlansPage() {
     <div className="flex h-full">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6 mobile-bottom-pad">
           <div className="max-w-6xl mx-auto">
             {/* Header */}
