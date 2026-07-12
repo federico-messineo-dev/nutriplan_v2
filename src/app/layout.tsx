@@ -71,14 +71,20 @@ export default function RootLayout({
               "  if(!el) return;",
               "  var chunks = document.querySelectorAll('script[src*=\"/_next/static/chunks/\"]');",
               "  var hasNextChunks = chunks.length > 0;",
-              "  var chunksLoaded = true;",
-              "  for(var i=0;i<chunks.length;i++){if(chunks[i].readyState&&chunks[i].readyState!=='complete'&&chunks[i].readyState!=='loaded'){chunksLoaded=false;break;}}",
+              // Check if chunks truly loaded using performance API
+              "  var scriptsLoaded = false;",
+              "  try{var perf=performance.getEntriesByType('resource')||[];for(var i=0;i<perf.length;i++){if(perf[i].name.indexOf('/_next/static/chunks/')>-1&&(perf[i].responseEnd>0||perf[i].responseStatus===200)){scriptsLoaded=true;break}}}catch(e){}",
+              // React globals
+              "  var hasNextRegister = typeof window.__NEXT_REGISTER_PAGE !== 'undefined';",
+              "  var hasNextData = typeof window.__NEXT_DATA__ !== 'undefined';",
+              // Check React fiber
               "  var all = document.querySelectorAll('*');",
               "  var hasReactFiber = false;",
               "  for(var i=0;i<all.length;i++){for(var k in all[i]){if(k.indexOf('__reactFiber')===0||k.indexOf('__reactProps')===0){hasReactFiber=true;break}}if(hasReactFiber)break}",
               "  var bodyKids = document.body ? document.body.children.length : -1;",
-              "  el.textContent = '3s | chunks=' + hasNextChunks + '(' + chunks.length + ') | loaded=' + chunksLoaded + ' | fiber=' + hasReactFiber + ' | bodyKids=' + bodyKids;",
-              "  el.style.background = hasReactFiber ? '#2e7d32' : hasNextChunks ? '#b8862f' : '#c84b31';",
+              // Fetch test: try to download a small resource to check network
+              "  el.textContent = '3s | chunks=' + hasNextChunks + '(' + chunks.length + ') | perf=' + scriptsLoaded + ' | reg=' + hasNextRegister + ' | fiber=' + hasReactFiber + ' | kids=' + bodyKids;",
+              "  el.style.background = hasReactFiber ? '#2e7d32' : '#b8862f';",
               "}",
               "setTimeout(checkJS, 3000);",
               "setTimeout(checkJS, 8000);",
