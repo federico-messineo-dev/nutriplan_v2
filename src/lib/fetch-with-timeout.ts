@@ -4,12 +4,13 @@ export async function fetchWithTimeout(
   timeoutMs = 10_000,
 ) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(input, { ...init, signal: controller.signal });
-  } catch (err) {
-    throw new Error(err instanceof Error ? err.message : "Richiesta scaduta");
-  } finally {
-    clearTimeout(timeout);
-  }
+  return await Promise.race([
+    fetch(input, { ...init, signal: controller.signal }),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => {
+        controller.abort();
+        reject(new Error("Richiesta scaduta"));
+      }, timeoutMs)
+    ),
+  ]);
 }
