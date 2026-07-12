@@ -183,6 +183,40 @@ export const mockExercises = [
   { id: "ex_15", trainerId: null, name: "Crunch", muscleGroup: "Addominali", equipment: "Peso corpo", videoUrl: null, substitutionGroup: "core" },
 ];
 
+export const mockMeals = [
+  // Marco — colazione
+  { id: "ml_01", dietPlanId: "dp_01", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_dairy_02", customLabel: null, grams: 40, kcal: 144, proteinG: 36, carbG: 0.8, fatG: 0.4 },
+  { id: "ml_02", dietPlanId: "dp_01", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_grain_03", customLabel: null, grams: 80, kcal: 303, proteinG: 10.8, carbG: 50.4, fatG: 5.6 },
+  // Marco — pranzo
+  { id: "ml_03", dietPlanId: "dp_01", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_prot_01", customLabel: null, grams: 200, kcal: 330, proteinG: 62, carbG: 0, fatG: 7.2 },
+  { id: "ml_04", dietPlanId: "dp_01", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_grain_01", customLabel: null, grams: 250, kcal: 325, proteinG: 6.75, carbG: 70, fatG: 0.75 },
+  { id: "ml_05", dietPlanId: "dp_01", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_veg_03", customLabel: null, grams: 150, kcal: 51, proteinG: 4.2, carbG: 10.5, fatG: 0.6 },
+  // Marco — cena
+  { id: "ml_06", dietPlanId: "dp_01", dayOfWeek: 1, slot: "CENA", recipeId: "r_fish_01", customLabel: null, grams: 180, kcal: 374, proteinG: 36, carbG: 0, fatG: 23.4 },
+  { id: "ml_07", dietPlanId: "dp_01", dayOfWeek: 1, slot: "CENA", recipeId: "r_tub_01", customLabel: null, grams: 200, kcal: 154, proteinG: 4, carbG: 34, fatG: 0.2 },
+  { id: "ml_08", dietPlanId: "dp_01", dayOfWeek: 1, slot: "CENA", recipeId: "r_veg_01", customLabel: null, grams: 100, kcal: 23, proteinG: 2.9, carbG: 3.6, fatG: 0.4 },
+  // Giulia — colazione
+  { id: "ml_09", dietPlanId: "dp_02", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_dairy_01", customLabel: null, grams: 200, kcal: 118, proteinG: 20, carbG: 7.2, fatG: 0.8 },
+  { id: "ml_10", dietPlanId: "dp_02", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_fruit_02", customLabel: null, grams: 150, kcal: 78, proteinG: 0.45, carbG: 21, fatG: 0.3 },
+  // Giulia — pranzo
+  { id: "ml_11", dietPlanId: "dp_02", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_leg_01", customLabel: null, grams: 200, kcal: 232, proteinG: 18, carbG: 40, fatG: 0.8 },
+  { id: "ml_12", dietPlanId: "dp_02", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_grain_02", customLabel: null, grams: 200, kcal: 316, proteinG: 11.6, carbG: 60, fatG: 1.8 },
+  // Giulia — cena
+  { id: "ml_13", dietPlanId: "dp_02", dayOfWeek: 1, slot: "CENA", recipeId: "r_egg_02", customLabel: null, grams: 120, kcal: 186, proteinG: 15.6, carbG: 1.32, fatG: 13.2 },
+  { id: "ml_14", dietPlanId: "dp_02", dayOfWeek: 1, slot: "CENA", recipeId: "r_veg_02", customLabel: null, grams: 200, kcal: 34, proteinG: 2.4, carbG: 6.2, fatG: 0.6 },
+  { id: "ml_15", dietPlanId: "dp_02", dayOfWeek: 1, slot: "CENA", recipeId: "r_tub_01", customLabel: null, grams: 150, kcal: 115.5, proteinG: 3, carbG: 25.5, fatG: 0.15 },
+  // Luca — colazione
+  { id: "ml_16", dietPlanId: "dp_03", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_egg_02", customLabel: null, grams: 100, kcal: 155, proteinG: 13, carbG: 1.1, fatG: 11 },
+  { id: "ml_17", dietPlanId: "dp_03", dayOfWeek: 1, slot: "COLAZIONE", recipeId: "r_grain_03", customLabel: null, grams: 100, kcal: 379, proteinG: 13.5, carbG: 63, fatG: 7 },
+  // Luca — pranzo
+  { id: "ml_18", dietPlanId: "dp_03", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_prot_04", customLabel: null, grams: 200, kcal: 274, proteinG: 42, carbG: 0, fatG: 11 },
+  { id: "ml_19", dietPlanId: "dp_03", dayOfWeek: 1, slot: "PRANZO", recipeId: "r_grain_02", customLabel: null, grams: 250, kcal: 395, proteinG: 14.5, carbG: 75, fatG: 2.25 },
+  // Luca — cena
+  { id: "ml_20", dietPlanId: "dp_03", dayOfWeek: 1, slot: "CENA", recipeId: "r_prot_01", customLabel: null, grams: 200, kcal: 330, proteinG: 62, carbG: 0, fatG: 7.2 },
+  { id: "ml_21", dietPlanId: "dp_03", dayOfWeek: 1, slot: "CENA", recipeId: "r_tub_02", customLabel: null, grams: 250, kcal: 215, proteinG: 4, carbG: 50, fatG: 0.25 },
+  { id: "ml_22", dietPlanId: "dp_03", dayOfWeek: 1, slot: "CENA", recipeId: "r_veg_02", customLabel: null, grams: 150, kcal: 25.5, proteinG: 1.8, carbG: 4.65, fatG: 0.45 },
+];
+
 export const mockDietPlans = [
   {
     id: "dp_01",
@@ -197,6 +231,32 @@ export const mockDietPlans = [
     approvedByTrainerAt: new Date("2026-07-06"),
     createdAt: new Date("2026-07-06"),
   },
+  {
+    id: "dp_02",
+    clientId: "c2f3g4h5i6j",
+    weekStart: new Date("2026-07-06"),
+    targetKcal: 1950,
+    targetProteinG: 110,
+    targetCarbG: 210,
+    targetFatG: 65,
+    status: "ACTIVE",
+    generatedBy: "AI",
+    approvedByTrainerAt: new Date("2026-07-06"),
+    createdAt: new Date("2026-07-05"),
+  },
+  {
+    id: "dp_03",
+    clientId: "c3k4l5m6n7o",
+    weekStart: new Date("2026-07-06"),
+    targetKcal: 2800,
+    targetProteinG: 180,
+    targetCarbG: 300,
+    targetFatG: 85,
+    status: "DRAFT",
+    generatedBy: "AI",
+    approvedByTrainerAt: null,
+    createdAt: new Date("2026-07-04"),
+  },
 ];
 
 export const mockWorkoutPlans = [
@@ -210,9 +270,77 @@ export const mockWorkoutPlans = [
     createdAt: new Date("2026-07-06"),
     sessions: [
       { id: "ws_01", workoutPlanId: "wp_01", dayOfWeek: 1, name: "Push" },
-      { id: "ws_02", workoutPlanId: "wp_01", dayOfWeek: 2, name: "Pull" },
+      { id: "ws_02", workoutPlanId: "wp_01", dayOfWeek: 3, name: "Pull" },
+      { id: "ws_03", workoutPlanId: "wp_01", dayOfWeek: 5, name: "Legs" },
     ],
   },
+  {
+    id: "wp_02",
+    clientId: "c2f3g4h5i6j",
+    weekStart: new Date("2026-07-06"),
+    status: "ACTIVE",
+    generatedBy: "AI",
+    approvedByTrainerAt: new Date("2026-07-05"),
+    createdAt: new Date("2026-07-05"),
+    sessions: [
+      { id: "ws_04", workoutPlanId: "wp_02", dayOfWeek: 2, name: "Full Body A" },
+      { id: "ws_05", workoutPlanId: "wp_02", dayOfWeek: 4, name: "Full Body B" },
+    ],
+  },
+  {
+    id: "wp_03",
+    clientId: "c3k4l5m6n7o",
+    weekStart: new Date("2026-07-06"),
+    status: "DRAFT",
+    generatedBy: "AI",
+    approvedByTrainerAt: null,
+    createdAt: new Date("2026-07-04"),
+    sessions: [
+      { id: "ws_06", workoutPlanId: "wp_03", dayOfWeek: 1, name: "Spinta" },
+      { id: "ws_07", workoutPlanId: "wp_03", dayOfWeek: 3, name: "Trazione" },
+      { id: "ws_08", workoutPlanId: "wp_03", dayOfWeek: 5, name: "Gambe" },
+    ],
+  },
+];
+
+export const mockSessionExercises = [
+  // wp_01 — Push
+  { id: "se_01", workoutSessionId: "ws_01", exerciseId: "ex_01", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 0 },
+  { id: "se_02", workoutSessionId: "ws_01", exerciseId: "ex_03", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 1 },
+  { id: "se_03", workoutSessionId: "ws_01", exerciseId: "ex_11", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 2 },
+  { id: "se_04", workoutSessionId: "ws_01", exerciseId: "ex_12", targetSets: 3, targetRepsMin: 12, targetRepsMax: 15, targetRpe: 7, orderIndex: 3 },
+  { id: "se_05", workoutSessionId: "ws_01", exerciseId: "ex_14", targetSets: 3, targetRepsMin: 12, targetRepsMax: 15, targetRpe: 7, orderIndex: 4 },
+  // wp_01 — Pull
+  { id: "se_06", workoutSessionId: "ws_02", exerciseId: "ex_05", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 0 },
+  { id: "se_07", workoutSessionId: "ws_02", exerciseId: "ex_06", targetSets: 3, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 1 },
+  { id: "se_08", workoutSessionId: "ws_02", exerciseId: "ex_07", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 2 },
+  { id: "se_09", workoutSessionId: "ws_02", exerciseId: "ex_13", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 3 },
+  // wp_01 — Legs
+  { id: "se_10", workoutSessionId: "ws_03", exerciseId: "ex_08", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 0 },
+  { id: "se_11", workoutSessionId: "ws_03", exerciseId: "ex_09", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 1 },
+  { id: "se_12", workoutSessionId: "ws_03", exerciseId: "ex_10", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 2 },
+  { id: "se_13", workoutSessionId: "ws_03", exerciseId: "ex_15", targetSets: 3, targetRepsMin: 15, targetRepsMax: 20, targetRpe: 7, orderIndex: 3 },
+  // wp_02 — Full Body A
+  { id: "se_14", workoutSessionId: "ws_04", exerciseId: "ex_08", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 0 },
+  { id: "se_15", workoutSessionId: "ws_04", exerciseId: "ex_05", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 1 },
+  { id: "se_16", workoutSessionId: "ws_04", exerciseId: "ex_11", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 2 },
+  { id: "se_17", workoutSessionId: "ws_04", exerciseId: "ex_15", targetSets: 3, targetRepsMin: 15, targetRepsMax: 20, targetRpe: 6.5, orderIndex: 3 },
+  // wp_02 — Full Body B
+  { id: "se_18", workoutSessionId: "ws_05", exerciseId: "ex_01", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 0 },
+  { id: "se_19", workoutSessionId: "ws_05", exerciseId: "ex_06", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 1 },
+  { id: "se_20", workoutSessionId: "ws_05", exerciseId: "ex_09", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7, orderIndex: 2 },
+  // wp_03 — Spinta
+  { id: "se_21", workoutSessionId: "ws_06", exerciseId: "ex_01", targetSets: 4, targetRepsMin: 6, targetRepsMax: 8, targetRpe: 8.5, orderIndex: 0 },
+  { id: "se_22", workoutSessionId: "ws_06", exerciseId: "ex_11", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 1 },
+  { id: "se_23", workoutSessionId: "ws_06", exerciseId: "ex_14", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 2 },
+  // wp_03 — Trazione
+  { id: "se_24", workoutSessionId: "ws_07", exerciseId: "ex_05", targetSets: 4, targetRepsMin: 6, targetRepsMax: 8, targetRpe: 8.5, orderIndex: 0 },
+  { id: "se_25", workoutSessionId: "ws_07", exerciseId: "ex_06", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 1 },
+  { id: "se_26", workoutSessionId: "ws_07", exerciseId: "ex_13", targetSets: 3, targetRepsMin: 10, targetRepsMax: 12, targetRpe: 7.5, orderIndex: 2 },
+  // wp_03 — Gambe
+  { id: "se_27", workoutSessionId: "ws_08", exerciseId: "ex_08", targetSets: 4, targetRepsMin: 6, targetRepsMax: 8, targetRpe: 8.5, orderIndex: 0 },
+  { id: "se_28", workoutSessionId: "ws_08", exerciseId: "ex_09", targetSets: 4, targetRepsMin: 8, targetRepsMax: 10, targetRpe: 8, orderIndex: 1 },
+  { id: "se_29", workoutSessionId: "ws_08", exerciseId: "ex_15", targetSets: 3, targetRepsMin: 12, targetRepsMax: 15, targetRpe: 7.5, orderIndex: 2 },
 ];
 
 // Helper functions for mock filtering/sorting (mirror Prisma query logic)
@@ -328,16 +456,143 @@ function applyTake<T>(items: T[], take?: number): T[] {
   return items.slice(0, take);
 }
 
-// Mock data store: maps model names to their data arrays
-const DATA_STORE: Record<string, Record<string, unknown>[]> = {
-  trainer: [mockTrainer],
-  client: mockClients as unknown as Record<string, unknown>[],
-  checkIn: mockCheckIns as unknown as Record<string, unknown>[],
-  recipe: mockRecipes as unknown as Record<string, unknown>[],
-  exercise: mockExercises as unknown as Record<string, unknown>[],
-  dietPlan: mockDietPlans as unknown as Record<string, unknown>[],
-  workoutPlan: mockWorkoutPlans as unknown as Record<string, unknown>[],
-};
+function resolveRelation(relName: string, relConfig: unknown, sourceId: string): unknown {
+  switch (relName) {
+    case "checkIns": {
+      let items = mockCheckIns.filter((c) => c.clientId === sourceId) as unknown as Record<string, unknown>[];
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
+        if (opts.take) items = applyTake(items, opts.take as number);
+      }
+      return items;
+    }
+    case "dietPlans": {
+      let items = mockDietPlans.filter((dp) => dp.clientId === sourceId) as unknown as Record<string, unknown>[];
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
+        if (opts.take) items = applyTake(items, opts.take as number);
+        if (opts.include) {
+          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
+        }
+      }
+      return items;
+    }
+    case "meals": {
+      let items = mockMeals.filter((m) => m.dietPlanId === sourceId) as unknown as Record<string, unknown>[];
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.select) {
+          const allowed = opts.select as Record<string, boolean>;
+          items = items.map((m) => {
+            const filtered: Record<string, unknown> = {};
+            for (const [k, v] of Object.entries(m)) {
+              if (allowed[k]) filtered[k] = v;
+            }
+            return filtered;
+          });
+        }
+        if (opts.include) {
+          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
+        }
+      }
+      return items;
+    }
+    case "sessions": {
+      let sessions = (DATA_STORE.workoutPlan?.find((p) => p.id === sourceId) as Record<string, unknown> | undefined)?.sessions as Record<string, unknown>[] | undefined;
+      if (!sessions) return [];
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.orderBy) sessions = applyOrderBy(sessions, opts.orderBy as Record<string, string>);
+        if (opts.include) {
+          sessions = sessions.map((s) => applyInclude(s, opts.include as Record<string, unknown>));
+        }
+      }
+      return sessions;
+    }
+    case "exercises": {
+      let items = mockSessionExercises.filter((se) => se.workoutSessionId === sourceId) as unknown as Record<string, unknown>[];
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
+        if (opts.include) {
+          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
+        }
+      }
+      return items;
+    }
+    case "exercise": {
+      const se = mockSessionExercises.find((s) => s.id === sourceId);
+      if (!se) return null;
+      const ex = mockExercises.find((e) => e.id === se.exerciseId);
+      if (!ex) return null;
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.select) {
+          const allowed = opts.select as Record<string, boolean>;
+          const filtered: Record<string, unknown> = {};
+          for (const [k, v] of Object.entries(ex)) {
+            if (allowed[k]) filtered[k] = v;
+          }
+          return filtered;
+        }
+      }
+      return ex;
+    }
+    case "logs": {
+      return [];
+    }
+    case "client": {
+      const cl = mockClients.find((c) => c.id === sourceId);
+      if (!cl) return null;
+      if (relConfig && typeof relConfig === "object") {
+        const opts = relConfig as Record<string, unknown>;
+        if (opts.select) {
+          const allowed = opts.select as Record<string, boolean>;
+          const filtered: Record<string, unknown> = {};
+          for (const [k, v] of Object.entries(cl)) {
+            if (allowed[k]) filtered[k] = v;
+          }
+          return filtered;
+        }
+      }
+      return cl;
+    }
+    case "trainer": {
+      return relConfig && typeof relConfig === "object" && (relConfig as Record<string, unknown>).select
+        ? applySelect(mockTrainer, (relConfig as Record<string, unknown>).select as Record<string, boolean>)
+        : mockTrainer;
+    }
+    case "_count": {
+      const counts: Record<string, number> = {};
+      if (relConfig && typeof relConfig === "object") {
+        const sel = (relConfig as Record<string, unknown>).select as Record<string, boolean> | undefined;
+        if (sel) {
+          for (const [key] of Object.entries(sel)) {
+            if (key === "checkIns") counts[key] = mockCheckIns.filter((c) => c.clientId === sourceId).length;
+            else if (key === "dietPlans") counts[key] = mockDietPlans.filter((dp) => dp.clientId === sourceId).length;
+            else if (key === "clients") counts[key] = mockClients.filter((c) => c.trainerId === sourceId).length;
+            else if (key === "recipes") counts[key] = mockRecipes.filter((r) => r.trainerId === sourceId || r.trainerId === null).length;
+            else if (key === "exercises") counts[key] = mockExercises.filter((e) => e.trainerId === sourceId || e.trainerId === null).length;
+          }
+        }
+      }
+      return { _count: counts };
+    }
+    default:
+      return null;
+  }
+}
+
+function applySelect<T extends Record<string, unknown>>(item: T, select?: Record<string, boolean>): T | Record<string, unknown> {
+  if (!select) return item;
+  const filtered: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(item)) {
+    if (select[k]) filtered[k] = v;
+  }
+  return filtered;
+}
 
 // Handles `include` expansions for Prisma relation includes
 function applyInclude<T extends Record<string, unknown>>(item: T, include?: Record<string, unknown>): T {
@@ -345,29 +600,28 @@ function applyInclude<T extends Record<string, unknown>>(item: T, include?: Reco
   const result = { ...item };
   for (const [rel, config] of Object.entries(include)) {
     if (!config) continue;
-    if (rel === "checkIns") {
-      let cis = mockCheckIns.filter((c) => c.clientId === item.id) as unknown as Record<string, unknown>[];
-      if (typeof config === "object" && config !== null) {
-        const opts = config as { orderBy?: Record<string, string>; take?: number };
-        if (opts.orderBy) cis = applyOrderBy(cis, opts.orderBy);
-        if (opts.take) cis = applyTake(cis, opts.take);
-      }
-      (result as Record<string, unknown>).checkIns = cis;
-    }
-    if (rel === "sessions") {
-      if (item.id && DATA_STORE.workoutPlan) {
-        const plan = DATA_STORE.workoutPlan.find((p) => p.id === item.id);
-        if (plan?.sessions) {
-          (result as Record<string, unknown>).sessions = plan.sessions;
-        }
-      }
-    }
-    if (rel === "trainer") {
-      (result as Record<string, unknown>).trainer = mockTrainer;
+    const resolved = resolveRelation(rel, config, item.id as string);
+    if (resolved !== null) {
+      (result as Record<string, unknown>)[rel] = resolved;
     }
   }
   return result;
 }
+
+// Mock data store
+const DATA_STORE: Record<string, Record<string, unknown>[]> = {
+  trainer: [mockTrainer],
+  client: mockClients as unknown as Record<string, unknown>[],
+  checkIn: mockCheckIns as unknown as Record<string, unknown>[],
+  recipe: mockRecipes as unknown as Record<string, unknown>[],
+  exercise: mockExercises as unknown as Record<string, unknown>[],
+  dietPlan: mockDietPlans as unknown as Record<string, unknown>[],
+  dietPlanMeal: mockMeals as unknown as Record<string, unknown>[],
+  workoutPlan: mockWorkoutPlans as unknown as Record<string, unknown>[],
+  workoutSession: [] as Record<string, unknown>[],
+  workoutSessionExercise: mockSessionExercises as unknown as Record<string, unknown>[],
+  sessionLog: [] as Record<string, unknown>[],
+};
 
 function buildMockDelegate<T extends Record<string, unknown>>(data: T[]) {
   return {
