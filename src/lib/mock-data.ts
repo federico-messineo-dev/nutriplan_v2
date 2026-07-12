@@ -354,57 +354,33 @@ function applyWhere<T extends Record<string, unknown>>(items: T[], where?: Recor
       if (key === "AND" && Array.isArray(val)) {
         return val.every((cond: Record<string, unknown>) => applyWhere([item], cond).length > 0);
       }
-      if (key === "NOT" && Array.isArray(val)) {
-        return val.every((cond: Record<string, unknown>) => applyWhere([item], cond).length === 0);
-      }
-      if (key === "trainerId") {
-        if (item.trainerId !== val && val !== null) return false;
-        continue;
-      }
-      if (key === "clientId") {
-        if (item.clientId !== val) return false;
-        continue;
-      }
-      if (key === "status") {
-        if (item.status !== val) return false;
-        continue;
-      }
-      if (key === "goal") {
-        if (item.goal !== val) return false;
-        continue;
-      }
-      if (key === "id") {
-        if (item.id !== val) return false;
-        continue;
-      }
-      if (key === "sex" || key === "diet") {
-        if (item[key] !== val) return false;
-        continue;
-      }
-      if (key === "muscleGroup") {
-        if (item.muscleGroup !== val) return false;
-        continue;
-      }
-      if (key === "category") {
-        if (item.category !== val) return false;
-        continue;
-      }
-      if (key === "NOT" && typeof val === "object") {
-        const notCond = val as Record<string, unknown>;
-        for (const [nk, nv] of Object.entries(notCond)) {
-          if (nk === "allergens" && Array.isArray(nv)) {
-            const itemAllergens: string[] = JSON.parse(item.allergens as string || "[]");
-            if (nv.some((a: string) => itemAllergens.includes(a))) return false;
-          }
-          if (nk === "dietTags" && typeof nv === "object" && "hasSome" in (nv as Record<string, unknown>)) {
-            const itemDiets: string[] = JSON.parse(item.dietTags as string || "[]");
-            if (itemDiets.some((d) => (nv as Record<string, string[]>).hasSome?.includes(d))) return false;
+      if (key === "NOT") {
+        if (Array.isArray(val)) {
+          return val.every((cond: Record<string, unknown>) => applyWhere([item], cond).length === 0);
+        }
+        if (typeof val === "object" && val !== null) {
+          const notCond = val as Record<string, unknown>;
+          for (const [nk, nv] of Object.entries(notCond)) {
+            if (nk === "allergens" && Array.isArray(nv)) {
+              const itemAllergens: string[] = JSON.parse(item.allergens as string || "[]");
+              if (nv.some((a: string) => itemAllergens.includes(a))) return false;
+            }
+            if (nk === "dietTags" && typeof nv === "object" && "hasSome" in (nv as Record<string, unknown>)) {
+              const itemDiets: string[] = JSON.parse(item.dietTags as string || "[]");
+              if (itemDiets.some((d) => (nv as Record<string, string[]>).hasSome?.includes(d))) return false;
+            }
           }
         }
         continue;
       }
-      if (typeof val === "object" && val !== null) {
+      // Handle { field: { in: [...] } }
+      if (typeof val === "object" && val !== null && !Array.isArray(val)) {
         const cond = val as Record<string, unknown>;
+        if ("in" in cond) {
+          const inVals = cond.in as unknown[];
+          if (!inVals.includes(item[key])) return false;
+          continue;
+        }
         if ("has" in cond) {
           const arr: string[] = JSON.parse(item[key] as string || "[]");
           if (!arr.includes(cond.has as string)) return false;
@@ -416,10 +392,8 @@ function applyWhere<T extends Record<string, unknown>>(items: T[], where?: Recor
           continue;
         }
       }
-      if (key.endsWith("Id") || key === "phoneNumberE164") {
-        if (item[key] !== val) return false;
-        continue;
-      }
+      // Simple field equality (handles id, trainerId, clientId, sex, diet, status, goal, etc.)
+      if (item[key] !== val) return false;
     }
     return true;
   });
@@ -456,142 +430,130 @@ function applyTake<T>(items: T[], take?: number): T[] {
   return items.slice(0, take);
 }
 
-function resolveRelation(relName: string, relConfig: unknown, sourceId: string): unknown {
+/**
+ * Apply Prisma-style `select` to an item. Object-valued select keys (like `recipe: { select: { name: true } }`)
+ * are treated as nested relation selects and resolved via applyIncludeItemSelect.
+ */
+function applySelectToItem(item: Record<string, unknown>, select: Record<string, unknown>): Record<string, unknown> {
+  const filtered: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(select)) {
+    if (v === true) {
+      filtered[k] = item[k];
+    } else if (typeof v === "object" && v !== null) {
+      const sub = v as Record<string, unknown>;
+      if (sub.select) {
+        const resolved = resolveRelationValue(k, sub, item);
+        if (resolved !== null) filtered[k] = resolved;
+      }
+    }
+  }
+  return filtered;
+}
+
+/**
+ * Resolve a relation value given the relation name, config, and the source item.
+ * Uses the correct foreign key per relation type.
+ */
+function resolveRelationValue(relName: string, relConfig: unknown, sourceItem: Record<string, unknown>): unknown {
+  // Determine the lookup key from the source item based on relation type
+  const lookupId: string | undefined =
+    relName === "client" ? sourceItem.clientId as string :
+    relName === "recipe" ? sourceItem.recipeId as string :
+    relName === "trainer" ? sourceItem.trainerId as string :
+    relName === "exercise" ? sourceItem.exerciseId as string :
+    sourceItem.id as string;
+
+  const isObject = relConfig != null && typeof relConfig === "object";
+  const select = isObject ? (relConfig as Record<string, unknown>).select as Record<string, unknown> | undefined : undefined;
+  const include = isObject ? (relConfig as Record<string, unknown>).include as Record<string, unknown> | undefined : undefined;
+  const orderBy = isObject ? (relConfig as Record<string, unknown>).orderBy as Record<string, string> | undefined : undefined;
+  const take = isObject ? (relConfig as Record<string, unknown>).take as number | undefined : undefined;
+
   switch (relName) {
     case "checkIns": {
-      let items = mockCheckIns.filter((c) => c.clientId === sourceId) as unknown as Record<string, unknown>[];
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
-        if (opts.take) items = applyTake(items, opts.take as number);
-      }
+      let items = mockCheckIns.filter((c) => c.clientId === lookupId) as unknown as Record<string, unknown>[];
+      if (orderBy) items = applyOrderBy(items, orderBy);
+      if (take != null) items = applyTake(items, take);
       return items;
     }
     case "dietPlans": {
-      let items = mockDietPlans.filter((dp) => dp.clientId === sourceId) as unknown as Record<string, unknown>[];
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
-        if (opts.take) items = applyTake(items, opts.take as number);
-        if (opts.include) {
-          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
-        }
-      }
+      let items = mockDietPlans.filter((dp) => dp.clientId === lookupId) as unknown as Record<string, unknown>[];
+      if (orderBy) items = applyOrderBy(items, orderBy);
+      if (take != null) items = applyTake(items, take);
+      if (include) items = items.map((item) => applyInclude(item, include));
       return items;
     }
     case "meals": {
-      let items = mockMeals.filter((m) => m.dietPlanId === sourceId) as unknown as Record<string, unknown>[];
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.select) {
-          const allowed = opts.select as Record<string, boolean>;
-          items = items.map((m) => {
-            const filtered: Record<string, unknown> = {};
-            for (const [k, v] of Object.entries(m)) {
-              if (allowed[k]) filtered[k] = v;
-            }
-            return filtered;
-          });
-        }
-        if (opts.include) {
-          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
-        }
+      let items = mockMeals.filter((m) => m.dietPlanId === lookupId) as unknown as Record<string, unknown>[];
+      if (select) {
+        items = items.map((m) => applySelectToItem(m, select));
+        return items;
       }
+      if (include) items = items.map((item) => applyInclude(item, include));
       return items;
     }
     case "sessions": {
-      let sessions = (DATA_STORE.workoutPlan?.find((p) => p.id === sourceId) as Record<string, unknown> | undefined)?.sessions as Record<string, unknown>[] | undefined;
-      if (!sessions) return [];
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.orderBy) sessions = applyOrderBy(sessions, opts.orderBy as Record<string, string>);
-        if (opts.include) {
-          sessions = sessions.map((s) => applyInclude(s, opts.include as Record<string, unknown>));
-        }
-      }
+      const plan = mockWorkoutPlans.find((p) => p.id === sourceItem.id) as Record<string, unknown> | undefined;
+      let sessions = (plan?.sessions as Record<string, unknown>[] | undefined) ?? [];
+      if (orderBy) sessions = applyOrderBy(sessions, orderBy);
+      if (include) sessions = sessions.map((s) => applyInclude(s, include));
       return sessions;
     }
     case "exercises": {
-      let items = mockSessionExercises.filter((se) => se.workoutSessionId === sourceId) as unknown as Record<string, unknown>[];
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.orderBy) items = applyOrderBy(items, opts.orderBy as Record<string, string>);
-        if (opts.include) {
-          items = items.map((item) => applyInclude(item, opts.include as Record<string, unknown>));
-        }
-      }
+      let items = mockSessionExercises.filter((se) => se.workoutSessionId === lookupId) as unknown as Record<string, unknown>[];
+      if (orderBy) items = applyOrderBy(items, orderBy);
+      if (include) items = items.map((item) => applyInclude(item, include));
       return items;
     }
     case "exercise": {
-      const se = mockSessionExercises.find((s) => s.id === sourceId);
+      const se = mockSessionExercises.find((s) => s.id === lookupId);
       if (!se) return null;
       const ex = mockExercises.find((e) => e.id === se.exerciseId);
       if (!ex) return null;
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.select) {
-          const allowed = opts.select as Record<string, boolean>;
-          const filtered: Record<string, unknown> = {};
-          for (const [k, v] of Object.entries(ex)) {
-            if (allowed[k]) filtered[k] = v;
-          }
-          return filtered;
-        }
-      }
+      if (select) return applySelectToItem(ex as unknown as Record<string, unknown>, select);
       return ex;
     }
     case "logs": {
       return [];
     }
     case "client": {
-      const cl = mockClients.find((c) => c.id === sourceId);
+      const cl = mockClients.find((c) => c.id === lookupId);
       if (!cl) return null;
-      if (relConfig && typeof relConfig === "object") {
-        const opts = relConfig as Record<string, unknown>;
-        if (opts.select) {
-          const allowed = opts.select as Record<string, boolean>;
-          const filtered: Record<string, unknown> = {};
-          for (const [k, v] of Object.entries(cl)) {
-            if (allowed[k]) filtered[k] = v;
-          }
-          return filtered;
-        }
-      }
+      if (select) return applySelectToItem(cl as unknown as Record<string, unknown>, select);
       return cl;
     }
+    case "recipe": {
+      const r = mockRecipes.find((rec) => rec.id === lookupId);
+      if (!r) return null;
+      if (select) return applySelectToItem(r as unknown as Record<string, unknown>, select);
+      return r;
+    }
     case "trainer": {
-      return relConfig && typeof relConfig === "object" && (relConfig as Record<string, unknown>).select
-        ? applySelect(mockTrainer, (relConfig as Record<string, unknown>).select as Record<string, boolean>)
-        : mockTrainer;
+      const tr = mockTrainer;
+      if (!tr) return null;
+      if (select) return applySelectToItem(tr as unknown as Record<string, unknown>, select);
+      return tr;
     }
     case "_count": {
       const counts: Record<string, number> = {};
-      if (relConfig && typeof relConfig === "object") {
+      if (isObject) {
         const sel = (relConfig as Record<string, unknown>).select as Record<string, boolean> | undefined;
         if (sel) {
           for (const [key] of Object.entries(sel)) {
-            if (key === "checkIns") counts[key] = mockCheckIns.filter((c) => c.clientId === sourceId).length;
-            else if (key === "dietPlans") counts[key] = mockDietPlans.filter((dp) => dp.clientId === sourceId).length;
-            else if (key === "clients") counts[key] = mockClients.filter((c) => c.trainerId === sourceId).length;
-            else if (key === "recipes") counts[key] = mockRecipes.filter((r) => r.trainerId === sourceId || r.trainerId === null).length;
-            else if (key === "exercises") counts[key] = mockExercises.filter((e) => e.trainerId === sourceId || e.trainerId === null).length;
+            if (key === "checkIns") counts[key] = mockCheckIns.filter((c) => c.clientId === lookupId).length;
+            else if (key === "dietPlans") counts[key] = mockDietPlans.filter((dp) => dp.clientId === lookupId).length;
+            else if (key === "workoutPlans") counts[key] = mockWorkoutPlans.filter((wp) => wp.clientId === lookupId).length;
+            else if (key === "clients") counts[key] = mockClients.filter((c) => c.trainerId === lookupId).length;
+            else if (key === "recipes") counts[key] = mockRecipes.filter((r) => r.trainerId === lookupId || r.trainerId === null).length;
+            else if (key === "exercises") counts[key] = mockExercises.filter((e) => e.trainerId === lookupId || e.trainerId === null).length;
           }
         }
       }
-      return { _count: counts };
+      return counts;
     }
     default:
       return null;
   }
-}
-
-function applySelect<T extends Record<string, unknown>>(item: T, select?: Record<string, boolean>): T | Record<string, unknown> {
-  if (!select) return item;
-  const filtered: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(item)) {
-    if (select[k]) filtered[k] = v;
-  }
-  return filtered;
 }
 
 // Handles `include` expansions for Prisma relation includes
@@ -600,7 +562,7 @@ function applyInclude<T extends Record<string, unknown>>(item: T, include?: Reco
   const result = { ...item };
   for (const [rel, config] of Object.entries(include)) {
     if (!config) continue;
-    const resolved = resolveRelation(rel, config, item.id as string);
+    const resolved = resolveRelationValue(rel, config, result as Record<string, unknown>);
     if (resolved !== null) {
       (result as Record<string, unknown>)[rel] = resolved;
     }
@@ -623,10 +585,31 @@ const DATA_STORE: Record<string, Record<string, unknown>[]> = {
   sessionLog: [] as Record<string, unknown>[],
 };
 
+/**
+ * Preprocess where clauses to handle nested relation filters like
+ * `where: { client: { trainerId } }` by resolving the related IDs first.
+ */
+function preprocessWhere(where: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
+  if (!where) return where;
+  const processed: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(where)) {
+    if (key === "client" && typeof val === "object" && val !== null) {
+      const cond = val as Record<string, unknown>;
+      if (cond.trainerId) {
+        const clientIds = mockClients.filter((c) => c.trainerId === cond.trainerId).map((c) => c.id);
+        processed.clientId = { in: clientIds };
+        continue;
+      }
+    }
+    processed[key] = val;
+  }
+  return processed;
+}
+
 function buildMockDelegate<T extends Record<string, unknown>>(data: T[]) {
   return {
     findMany: ({ where, orderBy, take, include }: { where?: Record<string, unknown>; orderBy?: Record<string, string> | Record<string, string>[]; take?: number; include?: Record<string, unknown> } = {}) => {
-      let result = applyWhere(data, where);
+      let result = applyWhere(data, preprocessWhere(where));
       result = applyOrderBy(result, orderBy);
       result = applyTake(result, take);
       if (include) {
