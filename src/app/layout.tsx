@@ -58,6 +58,9 @@ export default function RootLayout({
               "}",
               // Diagnostic: check if JS chunks load and execute
               "window.__inlineRan = true;",
+              // Global error catcher (also catches module script errors)
+              "window.addEventListener('error',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='JS ERROR: '+String(e.message||e.error).slice(0,120);el.style.background='#8b0000';}});",
+              "window.addEventListener('unhandledrejection',function(e){var el=document.getElementById('js-diag');if(el){el.textContent='PROMISE: '+String(e.reason).slice(0,120);el.style.background='#8b0000';}});",
               "var rd = document.createElement('div');",
               "rd.id = 'js-diag';",
               "rd.style.cssText = 'position:fixed;top:24px;left:0;right:0;z-index:99998;background:#333;color:#fff;font-size:9px;font-family:monospace;padding:2px 6px;text-align:center;line-height:1.4;';",
