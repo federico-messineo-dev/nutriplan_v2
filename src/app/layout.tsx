@@ -3,6 +3,7 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/provider";
 import { MotionProvider } from "@/components/motion/provider";
+import { LegacySWCleanup } from "@/components/legacy-sw-cleanup";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -42,9 +43,10 @@ export default function RootLayout({
   return (
     <html
       lang="it"
-      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased dark`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable} h-dvh antialiased dark`}
     >
-      <body className="h-full overflow-hidden flex flex-col font-body">
+      <body className="h-dvh overflow-hidden flex flex-col font-body">
+        <LegacySWCleanup />
         <ThemeProvider>
           <MotionProvider>{children}</MotionProvider>
         </ThemeProvider>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import {
   ArrowLeft,
   Check,
@@ -82,7 +83,7 @@ export default function WeeklyReviewPage({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/weekly-review", {
+      const res = await fetchWithTimeout("/api/weekly-review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ clientId: id }),
@@ -112,7 +113,7 @@ export default function WeeklyReviewPage({
     if (!data) return;
     setSaving(true);
     try {
-      const res = await fetch("/api/weekly-review/approve", {
+      const res = await fetchWithTimeout("/api/weekly-review/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,7 +138,7 @@ export default function WeeklyReviewPage({
     if (!data) return;
     setSaving(true);
     try {
-      await fetch("/api/clients/note", {
+      await fetchWithTimeout("/api/clients/note", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -164,7 +165,7 @@ export default function WeeklyReviewPage({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-dvh items-center justify-center">
         <div className="text-center">
           <RefreshCw size={24} className="animate-spin mx-auto text-cyan-400 mb-3" />
           <p className="font-body text-sm text-slate-400">Calcolo ricalibrazione...</p>
@@ -175,7 +176,7 @@ export default function WeeklyReviewPage({
 
   if (error && !data) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-dvh items-center justify-center">
         <div className="text-center">
           <AlertTriangle size={32} className="mx-auto text-amber-400 mb-3" />
           <p className="font-body text-sm text-slate-400 mb-4">{error}</p>
@@ -206,7 +207,7 @@ export default function WeeklyReviewPage({
   const done = approved || rejected;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       {/* Header */}
       <div className="border-b border-slate-700/50 bg-slate-900/50 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">

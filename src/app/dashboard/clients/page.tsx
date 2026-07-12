@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
@@ -70,6 +71,7 @@ const statusColors: Record<string, string> = {
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterGoal, setFilterGoal] = useState<string>("ALL");
   const [filterDiet, setFilterDiet] = useState<string>("ALL");
@@ -82,18 +84,18 @@ export default function ClientsPage() {
   const [creating, setCreating] = useState(false);
   const router = useRouter();
 
-  const fetchClients = useCallback(() => {
-    fetch("/api/clients")
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API error: ${r.status}`);
-        const d = await r.json();
-        setClients(d.clients || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Clients fetch error:", err);
-        setLoading(false);
-      });
+  const fetchClients = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const r = await fetchWithTimeout("/api/clients");
+      if (!r.ok) throw new Error(`API error: ${r.status}`);
+      const d = await r.json();
+      setClients(d.clients || []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Errore di connessione");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -280,6 +282,18 @@ export default function ClientsPage() {
                     </div>
                   </Card>
                 ))}
+              </div>
+            ) : loadError ? (
+              <div className="text-center py-16">
+                <AlertTriangle size={48} className="mx-auto text-red-400 mb-3" />
+                <h3 className="font-display text-lg text-slate-200 mb-1">Errore di caricamento</h3>
+                <p className="font-body text-sm text-slate-400 max-w-xs mx-auto mb-4">{loadError}</p>
+                <button
+                  onClick={fetchClients}
+                  className="font-body text-xs text-cyan-400 underline hover:text-cyan-300"
+                >
+                  Riprova
+                </button>
               </div>
             ) : filtered.length === 0 ? (
               <motion.div

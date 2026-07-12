@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSoft, duration, easeOutApple } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import {
   ArrowLeft,
   User,
@@ -426,13 +427,14 @@ export default function ClientDetailPage({
   const [client, setClient] = useState<Client | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>("feed");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+      const res = await fetchWithTimeout(`/api/clients/${id}`, { method: "DELETE" });
       if (res.ok) {
         router.push("/dashboard");
       }
@@ -443,12 +445,14 @@ export default function ClientDetailPage({
   };
 
   const fetchClient = useCallback(async () => {
+    setLoadError(null);
     try {
-      const res = await fetch(`/api/clients/${id}`);
+      const res = await fetchWithTimeout(`/api/clients/${id}`);
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data = await res.json();
       setClient(data.client);
-    } catch {
-      console.error("Failed to load client");
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Errore di connessione");
     } finally {
       setLoading(false);
     }
@@ -460,17 +464,17 @@ export default function ClientDetailPage({
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-dvh items-center justify-center">
         <div className="skeleton w-48 h-8 rounded-[var(--radius-sm)]" />
       </div>
     );
   }
 
-  if (!client) {
+  if (loadError || !client) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-dvh items-center justify-center">
         <div className="text-center">
-          <p className="font-body text-slate-400 mb-4">Cliente non trovato.</p>
+          <p className="font-body text-slate-400 mb-4">{loadError || "Cliente non trovato."}</p>
           <Link href="/dashboard" className="text-cyan-400 text-sm hover:underline">
             Torna alla dashboard
           </Link>

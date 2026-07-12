@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { springSoft } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import {
   Archive,
   Activity,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -55,21 +57,22 @@ const statusConfig: Record<string, { label: string; icon: typeof CheckCircle; co
 export default function WorkoutsPage() {
   const [plans, setPlans] = useState<WorkoutPlan[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
 
-  const fetchPlans = useCallback(() => {
-    fetch("/api/workouts")
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API error: ${r.status}`);
-        const d = await r.json();
-        setPlans(d.plans || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Workouts fetch error:", err);
-        setLoading(false);
-      });
+  const fetchPlans = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const r = await fetchWithTimeout("/api/workouts");
+      if (!r.ok) throw new Error(`API error: ${r.status}`);
+      const d = await r.json();
+      setPlans(d.plans || []);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Errore di connessione");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -194,6 +197,18 @@ export default function WorkoutsPage() {
                     </div>
                   </Card>
                 ))}
+              </div>
+            ) : loadError ? (
+              <div className="text-center py-16">
+                <AlertTriangle size={48} className="mx-auto text-red-400 mb-3" />
+                <h3 className="font-display text-lg text-slate-200 mb-1">Errore di caricamento</h3>
+                <p className="font-body text-sm text-slate-400 max-w-xs mx-auto mb-4">{loadError}</p>
+                <button
+                  onClick={fetchPlans}
+                  className="font-body text-xs text-cyan-400 underline hover:text-cyan-300"
+                >
+                  Riprova
+                </button>
               </div>
             ) : filtered.length === 0 ? (
               <motion.div

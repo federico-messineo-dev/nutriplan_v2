@@ -22,6 +22,7 @@ import {
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 
 interface AttentionScore {
   clientId: string;
@@ -272,23 +273,24 @@ function DashboardSkeleton() {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
-  const fetchData = useCallback(() => {
-    fetch("/api/dashboard")
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API error: ${r.status}`);
-        const d = await r.json();
-        if (!d.stats || !d.attentionScores) throw new Error("Invalid API response shape");
-        setData(d);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Dashboard fetch error:", err);
-        setLoading(false);
-      });
+  const fetchData = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const r = await fetchWithTimeout("/api/dashboard");
+      if (!r.ok) throw new Error(`API error: ${r.status}`);
+      const d = await r.json();
+      if (!d.stats || !d.attentionScores) throw new Error("Invalid API response shape");
+      setData(d);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Errore di connessione");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -409,6 +411,19 @@ export default function DashboardPage() {
                     </StaggerItem>
                   ))}
               </StaggerList>
+            </div>
+          )}
+
+          {/* Error banner */}
+          {loadError && !loading && (
+            <div className="mb-6 p-4 rounded-[var(--radius-md)] bg-red-500/10 border border-red-500/30 text-center">
+              <p className="font-body text-sm text-red-400">{loadError}</p>
+              <button
+                onClick={fetchData}
+                className="mt-2 font-body text-xs text-red-400 underline hover:text-red-300"
+              >
+                Riprova
+              </button>
             </div>
           )}
 

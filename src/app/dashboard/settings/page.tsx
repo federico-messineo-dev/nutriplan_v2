@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { springSoft } from "@/lib/motion";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { Card } from "@/components/ui/card";
@@ -102,28 +103,29 @@ const DIET_LABELS: Record<string, string> = {
 export default function SettingsPage() {
   const [trainer, setTrainer] = useState<Trainer | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [businessName, setBusinessName] = useState("");
 
-  const fetchTrainer = useCallback(() => {
-    fetch("/api/settings")
-      .then(async (r) => {
-        if (!r.ok) throw new Error(`API error: ${r.status}`);
-        const d = await r.json();
-        if (d.trainer) {
-          setTrainer(d.trainer);
-          setFullName(d.trainer.fullName);
-          setEmail(d.trainer.email);
-          setBusinessName(d.trainer.businessName || "");
-        }
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Settings fetch error:", err);
-        setLoading(false);
-      });
+  const fetchTrainer = useCallback(async () => {
+    setLoadError(null);
+    try {
+      const r = await fetchWithTimeout("/api/settings");
+      if (!r.ok) throw new Error(`API error: ${r.status}`);
+      const d = await r.json();
+      if (d.trainer) {
+        setTrainer(d.trainer);
+        setFullName(d.trainer.fullName);
+        setEmail(d.trainer.email);
+        setBusinessName(d.trainer.businessName || "");
+      }
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Errore di connessione");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -133,7 +135,7 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch("/api/settings", {
+      const res = await fetchWithTimeout("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fullName, email, businessName: businessName || null }),
@@ -354,10 +356,16 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
   const [filterCategory, setFilterCategory] = useState<string>("all");
 
   const fetchAlimenti = useCallback(async () => {
-    const res = await fetch("/api/recipes");
-    const data = await res.json();
-    setAlimenti(data.recipes || []);
-    setLoading(false);
+    try {
+      const res = await fetchWithTimeout("/api/recipes");
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const data = await res.json();
+      setAlimenti(data.recipes || []);
+    } catch {
+      setAlimenti([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -411,7 +419,7 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
     const url = editingId ? `/api/recipes/${editingId}` : "/api/recipes";
     const method = editingId ? "PATCH" : "POST";
 
-    await fetch(url, {
+    await fetchWithTimeout(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -426,7 +434,7 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/recipes/${id}`, { method: "DELETE" });
+    await fetchWithTimeout(`/api/recipes/${id}`, { method: "DELETE" });
     showToast("Alimento eliminato", "success");
     fetchAlimenti();
     onCountChange();
@@ -692,10 +700,16 @@ function EserciziManager({ onCountChange }: { onCountChange: () => void }) {
   const [filterGroup, setFilterGroup] = useState<string>("all");
 
   const fetchEsercizi = useCallback(async () => {
-    const res = await fetch("/api/exercises");
-    const data = await res.json();
-    setEsercizi(data.exercises || []);
-    setLoading(false);
+    try {
+      const res = await fetchWithTimeout("/api/exercises");
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const data = await res.json();
+      setEsercizi(data.exercises || []);
+    } catch {
+      setEsercizi([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -737,7 +751,7 @@ function EserciziManager({ onCountChange }: { onCountChange: () => void }) {
     const url = editingId ? `/api/exercises/${editingId}` : "/api/exercises";
     const method = editingId ? "PATCH" : "POST";
 
-    await fetch(url, {
+    await fetchWithTimeout(url, {
       method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -752,7 +766,7 @@ function EserciziManager({ onCountChange }: { onCountChange: () => void }) {
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/exercises/${id}`, { method: "DELETE" });
+    await fetchWithTimeout(`/api/exercises/${id}`, { method: "DELETE" });
     showToast("Esercizio eliminato", "success");
     fetchEsercizi();
     onCountChange();

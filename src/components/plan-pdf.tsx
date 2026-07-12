@@ -239,7 +239,7 @@ function PlanPDF({ data }: { data: PlanPDFData }) {
 
         {/* Totals */}
         <View style={styles.totalsSection}>
-          <Text style={styles.totalsTitle}>Tornelli giornalieri</Text>
+          <Text style={styles.totalsTitle}>Totali giornalieri</Text>
           <View style={styles.totalsRow}>
             <View style={styles.totalItem}>
               <Text style={styles.totalLabel}>Totale</Text>
