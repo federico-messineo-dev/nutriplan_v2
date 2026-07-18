@@ -245,22 +245,25 @@ export function PlanBuilder({
     }
   }, [initialMeals]);
 
-  // Fill in recipe names when recipes load (for AI-generated meals that only have IDs)
+  // Fill in recipe names when meals or recipes change
   useEffect(() => {
     if (recipes.length === 0) return;
     const byId = new Map(recipes.map((r) => [r.id, r]));
-    setPlan((p) => ({
-      ...p,
-      meals: p.meals.map((m) => ({
+    setPlan((p) => {
+      let changed = false;
+      const meals = p.meals.map((m) => ({
         ...m,
         items: m.items.map((it) => {
           if (it.recipeName) return it;
           const r = byId.get(it.recipeId);
-          return r ? { ...it, recipeName: r.name } : it;
+          if (!r) return it;
+          changed = true;
+          return { ...it, recipeName: r.name };
         }),
-      })),
-    }));
-  }, [recipes]);
+      }));
+      return changed ? { ...p, meals } : p;
+    });
+  }, [recipes, initialMeals]);
 
   const totals = useMemo(() => {
     const allItems = plan.meals.flatMap((m) => m.items);
