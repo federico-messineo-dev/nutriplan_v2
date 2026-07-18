@@ -39,6 +39,28 @@ const WorkoutPlanOutputSchema = z.object({
 
 // --- Helpers ---
 
+function extractJSON(raw: string): unknown {
+  const stripped = raw.replace(/```(?:json)?\s*/g, "").replace(/\s*```/g, "").trim();
+  let lastErr: unknown;
+
+  const strategies = [
+    () => JSON.parse(stripped),
+    () => JSON.parse(stripped.match(/\{[\s\S]*\}/)?.[0] || "null"),
+    () => JSON.parse(stripped.match(/\[[\s\S]*\]/)?.[0] || "null"),
+  ];
+
+  for (const tryParse of strategies) {
+    try {
+      const result = tryParse();
+      if (result !== null) return result;
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+
+  throw new Error(`Risposta AI non valida: JSON non trovato. Risposta grezza: ${raw.slice(0, 500)}`);
+}
+
 async function groqJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
@@ -56,12 +78,11 @@ async function groqJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
       messages: [
         {
           role: "system",
-          content:
-            "Sei un nutrizionista e personal trainer italiano. Rispondi SEMPRE e solo con JSON valido, senza testo aggiuntivo.",
+          content: "Sei un nutrizionista e personal trainer italiano. Rispondi SOLO con JSON valido, senza testo aggiuntivo, senza markdown, senza code block.",
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 4096,
     }),
   });
@@ -73,20 +94,19 @@ async function groqJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
 
   const data = await res.json();
   const text = data.choices?.[0]?.message?.content || "";
+  const parsed = extractJSON(text);
 
-  let parsed: unknown;
   try {
-    parsed = JSON.parse(text);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-    if (match) {
-      parsed = JSON.parse(match[0]);
-    } else {
-      throw new Error("Risposta AI non valida: JSON non trovato");
+    return schema.parse(parsed);
+  } catch (zodErr) {
+    // If the model returned an array directly, wrap it
+    if (Array.isArray(parsed) && schema.shape?.items) {
+      try {
+        return schema.parse({ items: parsed });
+      } catch {}
     }
+    throw zodErr;
   }
-
-  return schema.parse(parsed);
 }
 
 // --- Public API ---
@@ -132,7 +152,7 @@ export async function generateDietPlan(
     .map((r) => `- id:${r.id} | ${r.name} | ${r.kcalPer100g} kcal/100g | P:${r.proteinPer100g}g C:${r.carbPer100g}g F:${r.fatPer100g}g | ${r.category}`)
     .join("\n");
 
-  const prompt = `Sei un nutrizionista sportivo. Genera un piano alimentare di 7 giorni (lunedì a domenica). Output SOLO JSON, nient'altro.
+  const prompt = `Sei un nutrizionista sportivo. Genera un piano alimentare di 7 giorni (lunedì a domenica).
 
 PROFILO CLIENTE:
 - Nome: ${client.fullName}
@@ -161,7 +181,9 @@ REGOLE:
 3. Distribuisci le kcal nell'arco della giornata in modo bilanciato.
 4. Tieni conto delle preferenze ed esclusioni del cliente.
 5. Varia gli alimenti nei vari giorni — non ripetere sempre gli stessi pasti.
-6. Output SOLO JSON valido nel formato richiesto, senza testo aggiuntivo.`;
+
+Rispondi SOLO con questo JSON (senza markdown, senza testo aggiuntivo):
+{"items":[{"dayOfWeek":1,"slot":"COLAZIONE","recipeId":"...","grams":100}]}`;
 
   const output = await groqJSON(prompt, DietPlanOutputSchema);
 
@@ -277,7 +299,7 @@ export async function generateWorkoutPlan(
     .map((e) => `- id:${e.id} | ${e.name} | ${e.muscleGroup}${e.equipment ? " (" + e.equipment + ")" : ""}`)
     .join("\n");
 
-  const prompt = `Sei un personal trainer specializzato in bodybuilding e allenamento della forza. Crea una scheda di allenamento di ${trainingDays} giorni a settimana. Output SOLO JSON, nient'altro.
+  const prompt = `Sei un personal trainer specializzato in bodybuilding e allenamento della forza. Crea una scheda di allenamento di ${trainingDays} giorni a settimana.
 
 PROFILO CLIENTE:
 - Nome: ${client.fullName}
@@ -295,11 +317,13 @@ ${catalogText}
 
 REGOLE:
 1. Usa SOLO gli esercizi dal catalogo — mai inventare.
-2. Distribuisci i ${trainingDays} giorni in settimana (es. lunedì-mercoledì-venerdì per 3 giorni).
+2. Distribuisci i ${trainingDays} giorni in settimana (es. lunedì-mercedì-venerdì per 3 giorni).
 3. Per ogni esercizio: serie, ripetizioni (min-max), e RPE opzionale (6-10).
 4. Bilancia i gruppi muscolari nei vari giorni.
 5. Rispetta eventuali note su infortuni o limitazioni.
-6. Output SOLO JSON valido, senza testo aggiuntivo.`;
+
+Rispondi SOLO con questo JSON (senza markdown, senza testo aggiuntivo):
+{"sessions":[{"dayOfWeek":1,"name":"Petto e Tricipiti","exercises":[{"exerciseId":"...","targetSets":4,"targetRepsMin":8,"targetRepsMax":12,"targetRpe":8}]}]}`;
 
   const output = await groqJSON(prompt, WorkoutPlanOutputSchema);
 
