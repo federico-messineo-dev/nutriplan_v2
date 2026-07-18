@@ -20,6 +20,7 @@ import {
   Activity,
   X,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -59,6 +60,38 @@ export default function WorkoutsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [genClientId, setGenClientId] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [clients, setClients] = useState<{ id: string; fullName: string }[]>([]);
+  const [genMessage, setGenMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchWithTimeout("/api/clients")
+      .then((r) => r.ok ? r.json() : { clients: [] })
+      .then((d) => setClients(d.clients || []))
+      .catch(() => {});
+  }, []);
+
+  const handleGenerate = async () => {
+    if (!genClientId) return;
+    setGenerating(true);
+    setGenMessage(null);
+    try {
+      const r = await fetchWithTimeout("/api/plans/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: genClientId, type: "workout" }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Errore");
+      setGenMessage("Scheda generata con successo!");
+      fetchPlans();
+    } catch (err) {
+      setGenMessage(err instanceof Error ? err.message : "Errore di generazione");
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const fetchPlans = useCallback(async () => {
     setLoadError(null);
@@ -120,6 +153,39 @@ export default function WorkoutsPage() {
                 </motion.p>
               </div>
             </div>
+
+            {/* AI Generate */}
+            <motion.div
+              initial={{ y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex flex-col sm:flex-row gap-3 mb-4 justify-center items-center p-3 rounded-[var(--radius-md)] bg-gradient-to-r from-cyan-500/5 to-purple-500/5 border border-cyan-500/10"
+            >
+              <Sparkles size={16} className="text-cyan-400 shrink-0" />
+              <select
+                value={genClientId}
+                onChange={(e) => { setGenClientId(e.target.value); setGenMessage(null); }}
+                className="flex-1 max-w-xs h-9 px-3 rounded-full bg-slate-800/60 border border-slate-700/40 text-sm font-body text-slate-200 outline-none hover:border-cyan-500/30 transition-colors"
+              >
+                <option value="">Seleziona cliente...</option>
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>{c.fullName}</option>
+                ))}
+              </select>
+              <button
+                onClick={handleGenerate}
+                disabled={!genClientId || generating}
+                className="h-9 px-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-xs font-medium disabled:opacity-40 hover:from-cyan-400 hover:to-blue-400 transition-all flex items-center gap-1.5"
+              >
+                <Sparkles size={12} />
+                {generating ? "Generando..." : "Genera scheda AI"}
+              </button>
+              {genMessage && (
+                <p className="text-xs font-mono text-slate-400 text-center sm:text-left">
+                  {genMessage}
+                </p>
+              )}
+            </motion.div>
 
             {/* Search + Filters */}
             <motion.div
