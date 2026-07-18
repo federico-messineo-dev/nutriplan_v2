@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { PrismaClient } from "@prisma/client";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+const MODEL = "google/gemma-2-9b-it:free";
 
 // --- Zod schemas for AI output validation ---
 
