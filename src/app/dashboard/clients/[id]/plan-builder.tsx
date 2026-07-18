@@ -309,6 +309,10 @@ export function PlanBuilder({
                   recipeId: recipe.id,
                   recipeName: recipe.name,
                   grams: 100,
+                  kcal: Math.round((recipe.kcalPer100g * 100) / 100),
+                  proteinG: Math.round((recipe.proteinPer100g * 100) / 100),
+                  carbG: Math.round((recipe.carbPer100g * 100) / 100),
+                  fatG: Math.round((recipe.fatPer100g * 100) / 100),
                 },
               ],
             }
@@ -324,9 +328,19 @@ export function PlanBuilder({
         m.id === mealId
           ? {
               ...m,
-              items: m.items.map((it) =>
-                it.id === itemId ? { ...it, grams } : it,
-              ),
+              items: m.items.map((it) => {
+                if (it.id !== itemId) return it;
+                const factor = grams / 100;
+                const r = recipes.find((rec) => rec.id === it.recipeId);
+                return {
+                  ...it,
+                  grams,
+                  kcal: r ? Math.round(r.kcalPer100g * factor) : it.kcal,
+                  proteinG: r ? Math.round(r.proteinPer100g * factor) : it.proteinG,
+                  carbG: r ? Math.round(r.carbPer100g * factor) : it.carbG,
+                  fatG: r ? Math.round(r.fatPer100g * factor) : it.fatG,
+                };
+              }),
             }
           : m,
       ),
