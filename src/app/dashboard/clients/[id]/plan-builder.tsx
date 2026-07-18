@@ -31,6 +31,22 @@ interface MealItem {
   recipeId: string;
   recipeName: string;
   grams: number;
+  kcal: number;
+  proteinG: number;
+  carbG: number;
+  fatG: number;
+}
+
+interface InitialMealItem {
+  dayOfWeek: number;
+  slot: string;
+  recipeId: string;
+  recipeName: string;
+  grams: number;
+  kcal: number;
+  proteinG: number;
+  carbG: number;
+  fatG: number;
 }
 
 interface Meal {
@@ -50,13 +66,21 @@ function calcMealMacros(items: MealItem[], recipes: Recipe[]) {
   const byId = new Map(recipes.map((r) => [r.id, r]));
   let kcal = 0, p = 0, c = 0, f = 0;
   for (const item of items) {
-    const r = byId.get(item.recipeId);
-    if (!r) continue;
-    const factor = item.grams / 100;
-    kcal += r.kcalPer100g * factor;
-    p += r.proteinPer100g * factor;
-    c += r.carbPer100g * factor;
-    f += r.fatPer100g * factor;
+    // Use pre-computed macros if available (from AI generation), else compute from recipe
+    if (item.kcal && item.proteinG && item.carbG && item.fatG) {
+      kcal += item.kcal;
+      p += item.proteinG;
+      c += item.carbG;
+      f += item.fatG;
+    } else {
+      const r = byId.get(item.recipeId);
+      if (!r) continue;
+      const factor = item.grams / 100;
+      kcal += r.kcalPer100g * factor;
+      p += r.proteinPer100g * factor;
+      c += r.carbPer100g * factor;
+      f += r.fatPer100g * factor;
+    }
   }
   return { kcal: Math.round(kcal), p: Math.round(p), c: Math.round(c), f: Math.round(f) };
 }
@@ -128,9 +152,50 @@ function RecipePicker({
   );
 }
 
+const slotNames: Record<string, string> = {
+  COLAZIONE: "Colazione",
+  SPUNTINO_MATTINA: "Spuntino Mattina",
+  PRANZO: "Pranzo",
+  SPUNTINO_POMERIGGIO: "Spuntino Pomeriggio",
+  CENA: "Cena",
+};
+
+function buildInitialMeals(initialMeals: InitialMealItem[]): Meal[] {
+  if (initialMeals.length === 0) {
+    return MEAL_SLOTS.map((name, i) => ({
+      id: `meal-${i}`,
+      name,
+      items: [],
+    }));
+  }
+
+  const grouped = new Map<string, InitialMealItem[]>();
+  for (const m of initialMeals) {
+    const key = m.slot;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(m);
+  }
+
+  return [...grouped.entries()].map(([slot, items], i) => ({
+    id: `meal-${i}`,
+    name: slotNames[slot] || slot,
+    items: items.map((it, j) => ({
+      id: `item-${i}-${j}`,
+      recipeId: it.recipeId,
+      recipeName: it.recipeName,
+      grams: it.grams,
+      kcal: it.kcal,
+      proteinG: it.proteinG,
+      carbG: it.carbG,
+      fatG: it.fatG,
+    })),
+  }));
+}
+
 export function PlanBuilder({
   client,
   onSaved,
+  initialMeals,
 }: {
   client: {
     id: string;
@@ -140,16 +205,13 @@ export function PlanBuilder({
     startWeightKg: number | null;
   };
   onSaved: () => void;
+  initialMeals?: InitialMealItem[];
 }) {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [plan, setPlan] = useState<PlanData>({
-    meals: MEAL_SLOTS.map((name, i) => ({
-      id: `meal-${i}`,
-      name,
-      items: [],
-    })),
+  const [plan, setPlan] = useState<PlanData>(() => ({
+    meals: buildInitialMeals(initialMeals || []),
     rules: "",
-  });
+  }));
   const [pickerOpen, setPickerOpen] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -172,6 +234,33 @@ export function PlanBuilder({
     }
     loadRecipes();
   }, []);
+
+  // Update plan when initialMeals change (e.g. after AI generation)
+  useEffect(() => {
+    if (initialMeals && initialMeals.length > 0) {
+      setPlan((p) => ({
+        ...p,
+        meals: buildInitialMeals(initialMeals),
+      }));
+    }
+  }, [initialMeals]);
+
+  // Fill in recipe names when recipes load (for AI-generated meals that only have IDs)
+  useEffect(() => {
+    if (recipes.length === 0) return;
+    const byId = new Map(recipes.map((r) => [r.id, r]));
+    setPlan((p) => ({
+      ...p,
+      meals: p.meals.map((m) => ({
+        ...m,
+        items: m.items.map((it) => {
+          if (it.recipeName) return it;
+          const r = byId.get(it.recipeId);
+          return r ? { ...it, recipeName: r.name } : it;
+        }),
+      })),
+    }));
+  }, [recipes]);
 
   const totals = useMemo(() => {
     const allItems = plan.meals.flatMap((m) => m.items);

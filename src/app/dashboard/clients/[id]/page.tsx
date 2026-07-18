@@ -65,7 +65,25 @@ interface Client {
   medicalNotes: string | null;
   createdAt: string;
   checkIns: CheckIn[];
-  dietPlans: unknown[];
+  dietPlans?: Array<{
+    id: string;
+    targetKcal: number;
+    targetProteinG: number;
+    targetCarbG: number;
+    targetFatG: number;
+    status: string;
+    meals: Array<{
+      id: string;
+      dayOfWeek: number;
+      slot: string;
+      recipeId: string | null;
+      grams: number | null;
+      kcal: number;
+      proteinG: number;
+      carbG: number;
+      fatG: number;
+    }>;
+  }>;
   _count: { checkIns: number; dietPlans: number };
 }
 
@@ -348,16 +366,7 @@ function PlanBuilderWithAI({
   client,
   onSaved,
 }: {
-  client: {
-    id: string;
-    fullName: string;
-    exclusions: string;
-    diet: string;
-    startWeightKg: number | null;
-    sex: string | null;
-    age: number | null;
-    heightCm: number | null;
-  };
+  client: Client;
   onSaved: () => void;
 }) {
   const [generating, setGenerating] = useState(false);
@@ -434,7 +443,17 @@ function PlanBuilderWithAI({
       </div>
 
       {/* Existing Plan Builder */}
-      <PlanBuilder client={client} onSaved={onSaved} />
+      <PlanBuilder client={client} onSaved={onSaved} initialMeals={((client.dietPlans?.[0]?.meals || []) as Array<{ slot: string; recipeId: string | null; grams: number | null; kcal: number; proteinG: number; carbG: number; fatG: number }>).map((m) => ({
+        dayOfWeek: 0,
+        slot: m.slot,
+        recipeId: m.recipeId || "",
+        recipeName: "",
+        grams: m.grams || 100,
+        kcal: m.kcal,
+        proteinG: m.proteinG,
+        carbG: m.carbG,
+        fatG: m.fatG,
+      }))} />
     </div>
   );
 }
