@@ -2,7 +2,16 @@ import { z } from "zod";
 import type { PrismaClient } from "@prisma/client";
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "google/gemma-4-31b-it:free";
+const FREE_MODELS = [
+  "qwen/qwen3-next-80b-a3b-instruct:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "nousresearch/hermes-3-llama-3.1-405b:free",
+];
+
+let currentModelIndex = 0;
+function getModel() {
+  return FREE_MODELS[currentModelIndex % FREE_MODELS.length];
+}
 
 // --- Zod schemas for AI output validation ---
 
@@ -48,46 +57,61 @@ async function openrouterJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<
   const systemMessage =
     "Sei un nutrizionista e personal trainer italiano. Rispondi SEMPRE e solo con JSON valido, senza testo aggiuntivo.";
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://nutriplan.app",
-      "X-Title": "NutriPlan Pro",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: "system", content: systemMessage },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 4096,
-    }),
-  });
+  let lastError: Error | null = null;
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter error (${res.status}): ${err}`);
-  }
+  for (let attempt = 0; attempt < FREE_MODELS.length * 2; attempt++) {
+    const model = getModel();
+    currentModelIndex++;
 
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content || "";
+    const res = await fetch(OPENROUTER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://nutriplan.app",
+        "X-Title": "NutriPlan Pro",
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: "system", content: systemMessage },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 4096,
+      }),
+    });
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-    if (match) {
-      parsed = JSON.parse(match[0]);
-    } else {
-      throw new Error("Risposta AI non valida: JSON non trovato");
+    if (res.ok) {
+      const data = await res.json();
+      const text = data.choices?.[0]?.message?.content || "";
+
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(text);
+      } catch {
+        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+        if (match) {
+          parsed = JSON.parse(match[0]);
+        } else {
+          throw new Error("Risposta AI non valida: JSON non trovato");
+        }
+      }
+
+      return schema.parse(parsed);
     }
+
+    if (res.status === 429) {
+      lastError = new Error(`Modello ${model} rate limitato, provo il prossimo...`);
+      continue;
+    }
+
+    const errBody = await res.text();
+    lastError = new Error(`OpenRouter error (${res.status}) su ${model}: ${errBody}`);
+    continue;
   }
 
-  return schema.parse(parsed);
+  throw lastError || new Error("Tutti i modelli AI gratuiti hanno fallito. Riprova tra qualche minuto.");
 }
 
 // --- Public API ---
