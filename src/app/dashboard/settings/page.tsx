@@ -407,10 +407,10 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
     setSaving(true);
     const payload = {
       ...form,
-      kcalPer100g: parseFloat(form.kcalPer100g as string) || 0,
-      proteinPer100g: parseFloat(form.proteinPer100g as string) || 0,
-      carbPer100g: parseFloat(form.carbPer100g as string) || 0,
-      fatPer100g: parseFloat(form.fatPer100g as string) || 0,
+      kcalPer100g: parseInt(form.kcalPer100g as string) || 0,
+      proteinPer100g: parseInt(form.proteinPer100g as string) || 0,
+      carbPer100g: parseInt(form.carbPer100g as string) || 0,
+      fatPer100g: parseInt(form.fatPer100g as string) || 0,
     };
 
     const url = editingId ? `/api/recipes/${editingId}` : "/api/recipes";
@@ -608,7 +608,7 @@ function AlimentiManager({ onCountChange }: { onCountChange: () => void }) {
                           <label className="font-meta text-slate-500 text-xs">{field.label}</label>
                           <input
                             type="number"
-                            step="0.1"
+                            step="1"
                             value={form[field.key as keyof typeof form] as string}
                             onChange={(e) => setForm((f) => ({ ...f, [field.key]: e.target.value }))}
                             className="mt-1 w-full h-10 px-3 rounded-[var(--radius-sm)] border border-slate-700/50 bg-slate-800/50 text-sm font-mono text-slate-100"

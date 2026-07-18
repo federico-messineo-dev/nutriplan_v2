@@ -497,8 +497,9 @@ export default function WeeklyReviewPage({
               {editing ? (
                 <input
                   type="number"
+                  step={1}
                   value={editKcal}
-                  onChange={(e) => setEditKcal(Number(e.target.value))}
+                  onChange={(e) => setEditKcal(parseInt(e.target.value) || 0)}
                   className="w-24 text-center font-display text-xl text-cyan-400 bg-transparent border-b-2 border-cyan-500/30 focus:border-cyan-400 outline-none py-0.5"
                 />
               ) : (
@@ -526,6 +527,7 @@ export default function WeeklyReviewPage({
                   {editing ? (
                     <input
                       type="number"
+                      step={1}
                       value={m.value}
                       onChange={(e) => m.setter(parseInt(e.target.value) || 0)}
                       className="w-16 text-center font-display text-lg bg-transparent border-b border-slate-600 focus:border-cyan-400 outline-none py-0.5"

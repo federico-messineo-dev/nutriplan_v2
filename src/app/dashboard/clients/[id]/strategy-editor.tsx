@@ -264,6 +264,7 @@ function TargetInput({
       <div className="relative mt-1">
         <input
           type="number"
+          step={1}
           value={value}
           onChange={(e) => onChange(parseInt(e.target.value) || 0)}
           className={cn(

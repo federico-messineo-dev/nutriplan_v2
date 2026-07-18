@@ -118,7 +118,7 @@ function RecipePicker({
             >
               <p className="font-body text-sm text-slate-100">{r.name}</p>
               <p className="font-mono text-[10px] text-slate-500 mt-0.5">
-                {r.kcalPer100g} kcal · P{r.proteinPer100g} · C{r.carbPer100g} · F{r.fatPer100g} /100g
+                {Math.round(r.kcalPer100g)} kcal · P{Math.round(r.proteinPer100g)} · C{Math.round(r.carbPer100g)} · F{Math.round(r.fatPer100g)} /100g
               </p>
             </button>
           ))}
@@ -396,6 +396,7 @@ export function PlanBuilder({
                         </span>
                         <input
                           type="number"
+                          step={1}
                           value={item.grams}
                           onChange={(e) =>
                             updateGrams(meal.id, item.id, parseInt(e.target.value) || 0)
