@@ -25,7 +25,7 @@ export function calcBMR(p: ProfileForCalc, currentWeightKg: number): number {
     throw new Error("Missing age/height/sex: cannot compute BMR.");
   }
   const base = 10 * currentWeightKg + 6.25 * p.heightCm - 5 * p.age;
-  return p.sex === "M" ? base + 5 : base - 161;
+  return p.sex === "M" ? Math.round(base + 5) : Math.round(base - 161);
 }
 
 export function calcTDEE(p: ProfileForCalc, currentWeightKg: number) {
@@ -41,7 +41,7 @@ export function calcTDEE(p: ProfileForCalc, currentWeightKg: number) {
   }
   return {
     bmrKcal,
-    tdeeKcal: bmrKcal * p.activityFactor,
+    tdeeKcal: Math.round(bmrKcal * p.activityFactor),
     bmrFromFormula,
     tdeeFromFormula: true,
   };
