@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "clientId required" }, { status: 400 });
   }
 
-  if (!process.env.OPENROUTER_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json(
-      { error: "AI non configurata. Aggiungi OPENROUTER_API_KEY nelle variabili d'ambiente di Vercel (ottienila gratis su https://openrouter.ai/keys)." },
+      { error: "AI non configurata. Aggiungi GROQ_API_KEY nelle variabili d'ambiente di Vercel (ottienila gratis su https://console.groq.com/keys)." },
       { status: 400 },
     );
   }

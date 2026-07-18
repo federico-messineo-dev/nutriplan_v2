@@ -1,17 +1,8 @@
 import { z } from "zod";
 import type { PrismaClient } from "@prisma/client";
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const FREE_MODELS = [
-  "qwen/qwen3-next-80b-a3b-instruct:free",
-  "meta-llama/llama-3.3-70b-instruct:free",
-  "nousresearch/hermes-3-llama-3.1-405b:free",
-];
-
-let currentModelIndex = 0;
-function getModel() {
-  return FREE_MODELS[currentModelIndex % FREE_MODELS.length];
-}
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const MODEL = "llama-3.3-70b-versatile";
 
 // --- Zod schemas for AI output validation ---
 
@@ -48,70 +39,54 @@ const WorkoutPlanOutputSchema = z.object({
 
 // --- Helpers ---
 
-async function openrouterJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+async function groqJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    throw new Error("API key mancante. Aggiungi OPENROUTER_API_KEY nelle variabili d'ambiente di Vercel.");
+    throw new Error("Chiave GROQ mancante. Aggiungi GROQ_API_KEY nelle variabili d'ambiente di Vercel.");
   }
 
-  const systemMessage =
-    "Sei un nutrizionista e personal trainer italiano. Rispondi SEMPRE e solo con JSON valido, senza testo aggiuntivo.";
+  const res = await fetch(GROQ_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [
+        {
+          role: "system",
+          content:
+            "Sei un nutrizionista e personal trainer italiano. Rispondi SEMPRE e solo con JSON valido, senza testo aggiuntivo.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 4096,
+    }),
+  });
 
-  let lastError: Error | null = null;
-
-  for (let attempt = 0; attempt < FREE_MODELS.length * 2; attempt++) {
-    const model = getModel();
-    currentModelIndex++;
-
-    const res = await fetch(OPENROUTER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://nutriplan.app",
-        "X-Title": "NutriPlan Pro",
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemMessage },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 4096,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const text = data.choices?.[0]?.message?.content || "";
-
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(text);
-      } catch {
-        const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
-        if (match) {
-          parsed = JSON.parse(match[0]);
-        } else {
-          throw new Error("Risposta AI non valida: JSON non trovato");
-        }
-      }
-
-      return schema.parse(parsed);
-    }
-
-    if (res.status === 429) {
-      lastError = new Error(`Modello ${model} rate limitato, provo il prossimo...`);
-      continue;
-    }
-
-    const errBody = await res.text();
-    lastError = new Error(`OpenRouter error (${res.status}) su ${model}: ${errBody}`);
-    continue;
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Groq error (${res.status}): ${err}`);
   }
 
-  throw lastError || new Error("Tutti i modelli AI gratuiti hanno fallito. Riprova tra qualche minuto.");
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content || "";
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    if (match) {
+      parsed = JSON.parse(match[0]);
+    } else {
+      throw new Error("Risposta AI non valida: JSON non trovato");
+    }
+  }
+
+  return schema.parse(parsed);
 }
 
 // --- Public API ---
@@ -188,7 +163,7 @@ REGOLE:
 5. Varia gli alimenti nei vari giorni — non ripetere sempre gli stessi pasti.
 6. Output SOLO JSON valido nel formato richiesto, senza testo aggiuntivo.`;
 
-  const output = await openrouterJSON(prompt, DietPlanOutputSchema);
+  const output = await groqJSON(prompt, DietPlanOutputSchema);
 
   // Validate & repair numerically
   const recipeMap = new Map(recipes.map((r) => [r.id, r]));
@@ -326,7 +301,7 @@ REGOLE:
 5. Rispetta eventuali note su infortuni o limitazioni.
 6. Output SOLO JSON valido, senza testo aggiuntivo.`;
 
-  const output = await openrouterJSON(prompt, WorkoutPlanOutputSchema);
+  const output = await groqJSON(prompt, WorkoutPlanOutputSchema);
 
   // Validate exercises exist
   const exerciseIds = new Set(exercises.map((e) => e.id));
