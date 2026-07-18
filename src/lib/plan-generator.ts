@@ -7,14 +7,31 @@ const MODEL = "llama-3.3-70b-versatile";
 // --- Zod schemas for AI output validation ---
 
 const SLOT_MAP: Record<string, string> = {
-  colazione: "COLAZIONE", "spuntino mattina": "SPUNTINO_MATTINA", "spuntino mattutino": "SPUNTINO_MATTINA",
-  pranzo: "PRANZO", "spuntino pomeriggio": "SPUNTINO_POMERIGGIO", "spuntino pomeridiano": "SPUNTINO_POMERIGGIO",
-  cena: "CENA", merenda: "SPUNTINO_POMERIGGIO", spuntino: "SPUNTINO_MATTINA",
+  colazione: "COLAZIONE", colazion: "COLAZIONE", col: "COLAZIONE", breakfast: "COLAZIONE",
+  "spuntino mattina": "SPUNTINO_MATTINA", "spuntino di mattina": "SPUNTINO_MATTINA",
+  "spuntino mattutino": "SPUNTINO_MATTINA", "spuntino del mattino": "SPUNTINO_MATTINA",
+  "morning snack": "SPUNTINO_MATTINA", "morning_snack": "SPUNTINO_MATTINA",
+  pranzo: "PRANZO", pranz: "PRANZO", lunch: "PRANZO", "midday": "PRANZO",
+  "spuntino pomeriggio": "SPUNTINO_POMERIGGIO", "spuntino di pomeriggio": "SPUNTINO_POMERIGGIO",
+  "spuntino pomeridiano": "SPUNTINO_POMERIGGIO", merenda: "SPUNTINO_POMERIGGIO",
+  "afternoon snack": "SPUNTINO_POMERIGGIO", "afternoon_snack": "SPUNTINO_POMERIGGIO",
+  cena: "CENA", cen: "CENA", dinner: "CENA", supper: "CENA",
+  spuntino: "SPUNTINO_MATTINA",
 };
 
 function normalizeSlot(v: unknown) {
-  const raw = String(v).toLowerCase().trim();
-  return SLOT_MAP[raw] || raw.toUpperCase().replace(/\s+/g, "_");
+  const raw = String(v).toLowerCase().trim().replace(/["'']/g, "");
+  if (SLOT_MAP[raw]) return SLOT_MAP[raw];
+
+  // Fuzzy fallback: find closest keyword match
+  const has = (key: string) => raw.includes(key);
+  if (has("colazion") || has("breakfast") || has("mattina") || has("mattutino") || has("morn")) return "COLAZIONE";
+  if (has("pranzo") || has("lunch") || has("mezzogiorno") || has("midday")) return "PRANZO";
+  if (has("cena") || has("dinner") || has("supper") || has("sera")) return "CENA";
+  if (has("pomeriggio") || has("merenda") || has("afternoon")) return "SPUNTINO_POMERIGGIO";
+  if (has("spuntino") || has("snack") || has("mattino")) return "SPUNTINO_MATTINA";
+
+  return raw.toUpperCase().replace(/\s+/g, "_").replace(/["'']/g, "");
 }
 
 const MealItemSchema = z.object({
