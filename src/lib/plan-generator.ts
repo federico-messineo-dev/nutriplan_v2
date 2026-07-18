@@ -6,9 +6,20 @@ const MODEL = "llama-3.3-70b-versatile";
 
 // --- Zod schemas for AI output validation ---
 
+const SLOT_MAP: Record<string, string> = {
+  colazione: "COLAZIONE", "spuntino mattina": "SPUNTINO_MATTINA", "spuntino mattutino": "SPUNTINO_MATTINA",
+  pranzo: "PRANZO", "spuntino pomeriggio": "SPUNTINO_POMERIGGIO", "spuntino pomeridiano": "SPUNTINO_POMERIGGIO",
+  cena: "CENA", merenda: "SPUNTINO_POMERIGGIO", spuntino: "SPUNTINO_MATTINA",
+};
+
+function normalizeSlot(v: unknown) {
+  const raw = String(v).toLowerCase().trim();
+  return SLOT_MAP[raw] || raw.toUpperCase().replace(/\s+/g, "_");
+}
+
 const MealItemSchema = z.object({
   dayOfWeek: z.number().int().min(1).max(7),
-  slot: z.enum(["COLAZIONE", "SPUNTINO_MATTINA", "PRANZO", "SPUNTINO_POMERIGGIO", "CENA"]),
+  slot: z.preprocess(normalizeSlot, z.enum(["COLAZIONE", "SPUNTINO_MATTINA", "PRANZO", "SPUNTINO_POMERIGGIO", "CENA"])),
   recipeId: z.string().min(1),
   grams: z.number().int().positive(),
 });
