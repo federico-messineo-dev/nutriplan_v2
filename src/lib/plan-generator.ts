@@ -1,10 +1,8 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 import type { PrismaClient } from "@prisma/client";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
-const MODEL = "gemini-2.0-flash-lite";
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
 
 // --- Zod schemas for AI output validation ---
 
@@ -41,41 +39,56 @@ const WorkoutPlanOutputSchema = z.object({
 
 // --- Helpers ---
 
-async function geminiJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
-  const model = genAI.getGenerativeModel({
-    model: MODEL,
-    generationConfig: {
-      responseMimeType: "application/json",
-      temperature: 0.7,
+async function openrouterJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("API key mancante. Aggiungi OPENROUTER_API_KEY nelle variabili d'ambiente di Vercel.");
+  }
+
+  const systemMessage =
+    "Sei un nutrizionista e personal trainer italiano. Rispondi SEMPRE e solo con JSON valido, senza testo aggiuntivo.";
+
+  const res = await fetch(OPENROUTER_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://nutriplan.app",
+      "X-Title": "NutriPlan Pro",
     },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.7,
+      max_tokens: 4096,
+    }),
   });
 
-  const result = await model.generateContent(prompt);
-  const text = result.response.text();
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`OpenRouter error (${res.status}): ${err}`);
+  }
+
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content || "";
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(text);
   } catch {
-    // Try to extract JSON from the response
     const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
     if (match) {
       parsed = JSON.parse(match[0]);
     } else {
-      throw new Error("AI response is not valid JSON");
+      throw new Error("Risposta AI non valida: JSON non trovato");
     }
   }
 
   return schema.parse(parsed);
 }
-
-const MEAL_SLOT_LABELS: Record<string, string> = {
-  COLAZIONE: "Colazione",
-  SPUNTINO_MATTINA: "Spuntino mattina",
-  PRANZO: "Pranzo",
-  SPUNTINO_POMERIGGIO: "Spuntino pomeriggio",
-  CENA: "Cena",
-};
 
 // --- Public API ---
 
@@ -120,7 +133,7 @@ export async function generateDietPlan(
     .map((r) => `- id:${r.id} | ${r.name} | ${r.kcalPer100g} kcal/100g | P:${r.proteinPer100g}g C:${r.carbPer100g}g F:${r.fatPer100g}g | ${r.category}`)
     .join("\n");
 
-  const prompt = `Sei un nutrizionista sportivo. Genera un piano alimentare di 7 giorni (lunedì a domenica).
+  const prompt = `Sei un nutrizionista sportivo. Genera un piano alimentare di 7 giorni (lunedì a domenica). Output SOLO JSON, nient'altro.
 
 PROFILO CLIENTE:
 - Nome: ${client.fullName}
@@ -149,9 +162,9 @@ REGOLE:
 3. Distribuisci le kcal nell'arco della giornata in modo bilanciato.
 4. Tieni conto delle preferenze ed esclusioni del cliente.
 5. Varia gli alimenti nei vari giorni — non ripetere sempre gli stessi pasti.
-6. Output ESAttamente nel formato JSON richiesto.`;
+6. Output SOLO JSON valido nel formato richiesto, senza testo aggiuntivo.`;
 
-  const output = await geminiJSON(prompt, DietPlanOutputSchema);
+  const output = await openrouterJSON(prompt, DietPlanOutputSchema);
 
   // Validate & repair numerically
   const recipeMap = new Map(recipes.map((r) => [r.id, r]));
@@ -159,7 +172,7 @@ REGOLE:
 
   for (const item of output.items) {
     const recipe = recipeMap.get(item.recipeId);
-    if (!recipe) throw new Error(`AI used unknown recipe: ${item.recipeId}`);
+    if (!recipe) throw new Error(`AI ha usato un alimento sconosciuto: ${item.recipeId}`);
 
     const factor = item.grams / 100;
     validated.push({
@@ -265,7 +278,7 @@ export async function generateWorkoutPlan(
     .map((e) => `- id:${e.id} | ${e.name} | ${e.muscleGroup}${e.equipment ? " (" + e.equipment + ")" : ""}`)
     .join("\n");
 
-  const prompt = `Sei un personal trainer specializzato in bodybuilding e allenamento della forza. Crea una scheda di allenamento di ${trainingDays} giorni a settimana.
+  const prompt = `Sei un personal trainer specializzato in bodybuilding e allenamento della forza. Crea una scheda di allenamento di ${trainingDays} giorni a settimana. Output SOLO JSON, nient'altro.
 
 PROFILO CLIENTE:
 - Nome: ${client.fullName}
@@ -287,16 +300,16 @@ REGOLE:
 3. Per ogni esercizio: serie, ripetizioni (min-max), e RPE opzionale (6-10).
 4. Bilancia i gruppi muscolari nei vari giorni.
 5. Rispetta eventuali note su infortuni o limitazioni.
-6. Output JSON.`;
+6. Output SOLO JSON valido, senza testo aggiuntivo.`;
 
-  const output = await geminiJSON(prompt, WorkoutPlanOutputSchema);
+  const output = await openrouterJSON(prompt, WorkoutPlanOutputSchema);
 
   // Validate exercises exist
   const exerciseIds = new Set(exercises.map((e) => e.id));
   for (const session of output.sessions) {
     for (const ex of session.exercises) {
       if (!exerciseIds.has(ex.exerciseId)) {
-        throw new Error(`AI used unknown exercise: ${ex.exerciseId}`);
+        throw new Error(`AI ha usato un esercizio sconosciuto: ${ex.exerciseId}`);
       }
     }
   }

@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "clientId required" }, { status: 400 });
   }
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!process.env.OPENROUTER_API_KEY) {
     return NextResponse.json(
-      { error: "Gemini AI non configurata. Aggiungi GEMINI_API_KEY nelle variabili d'ambiente." },
-      { status: 501 },
+      { error: "AI non configurata. Aggiungi OPENROUTER_API_KEY nelle variabili d'ambiente di Vercel (ottienila gratis su https://openrouter.ai/keys)." },
+      { status: 400 },
     );
   }
 

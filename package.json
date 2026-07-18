@@ -20,7 +20,6 @@
     "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.22.0",
     "@react-pdf/renderer": "^4.5.1",
     "class-variance-authority": "^0.7.1",
