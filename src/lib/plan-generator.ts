@@ -4,7 +4,7 @@ import type { PrismaClient } from "@prisma/client";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-const MODEL = "gemini-1.5-flash";
+const MODEL = "gemini-2.0-flash";
 
 // --- Zod schemas for AI output validation ---
 
