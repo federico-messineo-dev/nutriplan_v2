@@ -20,7 +20,7 @@ function normalizeSlot(v: unknown) {
 const MealItemSchema = z.object({
   dayOfWeek: z.number().int().min(1).max(7),
   slot: z.preprocess(normalizeSlot, z.enum(["COLAZIONE", "SPUNTINO_MATTINA", "PRANZO", "SPUNTINO_POMERIGGIO", "CENA"])),
-  recipeId: z.string().min(1),
+  food: z.string().min(1),
   grams: z.number().int().positive(),
 });
 
@@ -158,8 +158,10 @@ export async function generateDietPlan(
   const targetC = lastPlan?.targetCarbG || 200;
   const targetF = lastPlan?.targetFatG || 60;
 
+  // Build catalog: use names as keys (LLMs remember names better than IDs)
+  const nameToRecipe = new Map(recipes.map((r) => [r.name.toLowerCase().trim(), r]));
   const catalogText = recipes
-    .map((r) => `- id:${r.id} | ${r.name} | ${r.kcalPer100g} kcal/100g | P:${r.proteinPer100g}g C:${r.carbPer100g}g F:${r.fatPer100g}g | ${r.category}`)
+    .map((r) => `- "${r.name}" | ${r.kcalPer100g} kcal/100g | P:${r.proteinPer100g}g C:${r.carbPer100g}g F:${r.fatPer100g}g | ${r.category}`)
     .join("\n");
 
   const prompt = `Sei un nutrizionista sportivo. Genera un piano alimentare di 7 giorni (lunedì a domenica).
@@ -182,32 +184,36 @@ ${client.medicalNotes || "Nessuna nota medica"}
 CHECK-IN RECENTI:
 ${client.checkIns.map((c) => `- ${new Date(c.createdAt).toLocaleDateString()}: peso=${c.weightKg ?? "N/D"}kg, sonno=${c.sleepHours ?? "N/D"}h, energia=${c.energyLevel ?? "N/D"}/10, aderenza=${c.adherencePct ?? "N/D"}%${c.notes ? " — " + c.notes : ""}`).join("\n") || "Nessun check-in disponibile"}
 
-CATALOGO ALIMENTI (usa SOLO questi, per ID):
+CATALOGO ALIMENTI (usa SOLO questi, indicandoli per nome esatto tra virgolette):
 ${catalogText}
 
 REGOLE:
-1. Usa SOLO gli alimenti dal catalogo sopra — mai inventare cibi.
-2. Per ogni pasto assegna: recipeId, grammi (peso del cibo cotto/pronto).
+1. Usa SOLO gli alimenti dal catalogo sopra — mai inventare cibi. Il campo "food" deve essere il nome esatto dal catalogo.
+2. Per ogni pasto assegna: food (nome esatto), grammi.
 3. Distribuisci le kcal nell'arco della giornata in modo bilanciato.
 4. Tieni conto delle preferenze ed esclusioni del cliente.
 5. Varia gli alimenti nei vari giorni — non ripetere sempre gli stessi pasti.
 
 Rispondi SOLO con questo JSON (senza markdown, senza testo aggiuntivo):
-{"items":[{"dayOfWeek":1,"slot":"COLAZIONE","recipeId":"...","grams":100}]}`;
+{"items":[{"dayOfWeek":1,"slot":"COLAZIONE","food":"Nome esatto dal catalogo","grams":100}]}`;
 
   const output = await groqJSON(prompt, DietPlanOutputSchema);
 
-  // Validate & repair numerically
-  const recipeMap = new Map(recipes.map((r) => [r.id, r]));
+  // Map food names back to recipe IDs
+  const recipeById = new Map(recipes.map((r) => [r.id, r]));
   const validated: Array<{ recipeId: string; grams: number; kcal: number; proteinG: number; carbG: number; fatG: number; dayOfWeek: number; slot: string }> = [];
 
   for (const item of output.items) {
-    const recipe = recipeMap.get(item.recipeId);
-    if (!recipe) throw new Error(`AI ha usato un alimento sconosciuto: ${item.recipeId}`);
+    const key = item.food.toLowerCase().trim();
+    const recipe = nameToRecipe.get(key) || recipes.find((r) => r.name.toLowerCase().trim() === key);
+    if (!recipe) {
+      const known = [...nameToRecipe.keys()].slice(0, 10).join(", ");
+      throw new Error(`Alimento "${item.food}" non trovato nel catalogo. Alimenti disponibili: ${known}...`);
+    }
 
     const factor = item.grams / 100;
     validated.push({
-      recipeId: item.recipeId,
+      recipeId: recipe.id,
       grams: item.grams,
       kcal: Math.round(recipe.kcalPer100g * factor),
       proteinG: Math.round(recipe.proteinPer100g * factor),
@@ -230,7 +236,7 @@ Rispondi SOLO con questo JSON (senza markdown, senza testo aggiuntivo):
       for (const meal of dayMeals) {
         meal.grams = Math.round(meal.grams * scale);
         const factor = meal.grams / 100;
-        const recipe = recipeMap.get(meal.recipeId)!;
+        const recipe = recipeById.get(meal.recipeId)!;
         meal.kcal = Math.round(recipe.kcalPer100g * factor);
         meal.proteinG = Math.round(recipe.proteinPer100g * factor);
         meal.carbG = Math.round(recipe.carbPer100g * factor);
