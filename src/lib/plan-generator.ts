@@ -96,17 +96,16 @@ async function groqJSON<T>(prompt: string, schema: z.ZodType<T>): Promise<T> {
   const text = data.choices?.[0]?.message?.content || "";
   const parsed = extractJSON(text);
 
-  try {
-    return schema.parse(parsed);
-  } catch (zodErr) {
-    // If the model returned an array directly, wrap it
-    if (Array.isArray(parsed) && schema.shape?.items) {
-      try {
-        return schema.parse({ items: parsed });
-      } catch {}
-    }
-    throw zodErr;
+  const direct = schema.safeParse(parsed);
+  if (direct.success) return direct.data;
+
+  // If the model returned an array directly, wrap it
+  if (Array.isArray(parsed)) {
+    const wrapped = schema.safeParse({ items: parsed });
+    if (wrapped.success) return wrapped.data;
   }
+
+  throw direct.error;
 }
 
 // --- Public API ---
